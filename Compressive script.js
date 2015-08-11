@@ -13,12 +13,16 @@ var data = [];
 
 //updates coefficients
 function updateXs() {
-    update vars to match coordinates
+    //update vars to match coordinates
     firstx = nodes[0].x;
     firsty = nodes[0].y;
     secondx = nodes[1].x;
     secondy = nodes[1].y;
 
+    redoXs();
+}
+
+function redoXs() {
     xtwo = (75 - slider) / 50;
     xone = (secondy - firsty) / (secondx - firstx) - xtwo * (secondx + firstx);
     xzero = firsty - (xtwo * firstx * firstx) - ((secondy - firsty) / (secondx - firstx)) * firstx + xtwo * (firstx + secondx) * firstx;
@@ -69,7 +73,8 @@ function updateBars() {
 //function makeLine() {}
 
 $(document).ready(function () {
-    updateXs();
+    redoXs();
+
     updateLineData();
     displayVals();
 
@@ -133,6 +138,7 @@ $(document).ready(function () {
 
     makeDots(firstx, secondx);
 
+    //behavior for a dragged point
     var drag = d3.behavior.drag()
         .origin(function (d) {
             return d;
@@ -141,6 +147,8 @@ $(document).ready(function () {
 
     function dragmove(d) {
         d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
+        
+        //events to update line to fit dots
     }
 
     //puts in dots
@@ -271,7 +279,6 @@ MARGINS.bottom]).domain([0, 5]);
                     return d.value - d.y;
                 },
                 height: function (d) {
-                    console.log(d.value);
                     return canvas.height - MARGINS.top - d.value;
                 }
             })
