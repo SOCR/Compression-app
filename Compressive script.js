@@ -10,11 +10,18 @@ var lineData = [];
 var nodes = [];
 var data = [];
 
+
 //updates coefficients
 function updateXs() {
+    update vars to match coordinates
+    firstx = nodes[0].x;
+    firsty = nodes[0].y;
+    secondx = nodes[1].x;
+    secondy = nodes[1].y;
+
     xtwo = (75 - slider) / 50;
-    xone = (slider - 25) / 50;
-    xzero = (slider - 25) / 25;
+    xone = (secondy - firsty) / (secondx - firstx) - xtwo * (secondx + firstx);
+    xzero = firsty - (xtwo * firstx * firstx) - ((secondy - firsty) / (secondx - firstx)) * firstx + xtwo * (firstx + secondx) * firstx;
 }
 
 //gets corresponding y from x and coefficients
