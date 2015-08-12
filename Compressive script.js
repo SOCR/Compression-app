@@ -16,10 +16,10 @@ var smallX
 //updates coefficients
 function updateXs() {
     //update vars to match coordinates
-    firstx = xRange(nodes[0].x);
-    firsty = xRange(nodes[0].y);
-    secondx = yRange(nodes[1].x);
-    secondy = yRange(nodes[1].y);
+    firstx = /*xRange(*/ nodes[0].x;
+    firsty = nodes[0].y;
+    secondx = nodes[1].x;
+    secondy = nodes[1].y;
 
     redoXs();
 }
@@ -42,6 +42,7 @@ function updateLineData() {
     if (firstx < secondx) {
         bigX = secondx;
         smallX = firstx;
+        console.log(bigX, smallX);
     } else if (firstx == secondx) {
         smallX = 1;
         bigX = -2;
@@ -156,21 +157,33 @@ $(document).ready(function () {
         .origin(function (d) {
             return d;
         })
-        .on("drag", dragmove);
+        .on("drag", dragmove)
+        .on("dragend", function (d) {
+            //events to update line to fit dots
+            updateXs();
+            updateLineData();
+            console.log(lineData);
+            console.log(bigX, smallX);
+
+            //update line
+            d3.select(".myLine").transition()
+                .attr("d", lineFunc(lineData));
+
+        });
 
     function dragmove(d) {
         d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
+        /*
+                //events to update line to fit dots
+                updateXs();
+                updateLineData();
+                console.log(lineData);
+                console.log(bigX, smallX);
 
-        //events to update line to fit dots
-        updateXs();
-        updateLineData();
-        console.log(lineData);
-        console.log(bigX, smallX);
-
-        //update line
-        d3.select(".myLine").transition()
-            .attr("d", lineFunc(lineData));
-
+                //update line
+                d3.select(".myLine").transition()
+                    .attr("d", lineFunc(lineData));
+        */
     }
 
     //puts in dots
