@@ -10,13 +10,14 @@ var lineData = [];
 var nodes = [];
 var data = [];
 var bigX;
-var smallX
+var smallX;
+var xRange;
 
 
 //updates coefficients
 function updateXs() {
     //update vars to match coordinates
-    firstx = /*xRange(*/ nodes[0].x;
+    firstx = nodes[0].x;
     firsty = nodes[0].y;
     secondx = nodes[1].x;
     secondy = nodes[1].y;
@@ -162,7 +163,6 @@ $(document).ready(function () {
             //events to update line to fit dots
             updateXs();
             updateLineData();
-            console.log(lineData);
             console.log(bigX, smallX);
 
             //update line
@@ -172,7 +172,7 @@ $(document).ready(function () {
         });
 
     function dragmove(d) {
-        d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
+        d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x - d.x) + "," + (d.y = d3.event.y) + ")");
         /*
                 //events to update line to fit dots
                 updateXs();
