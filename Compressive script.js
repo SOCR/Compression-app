@@ -11,16 +11,28 @@ var nodes = [];
 var data = [];
 var bigX;
 var smallX;
-var xRange;
-
+var xRange = 1;
+var yRange = 1;
+var originx1 = firstx;
+var originy1 = firsty;
+var originx2 = secondx;
+var originy2 = secondy;
 
 //updates coefficients
 function updateXs() {
+
+    var pixelx1 = xRange(originx1) + nodes[0].x;
+    var pixely1 = yRange(originy1) + nodes[0].y;
+    var pixelx2 = xRange(originx2) + nodes[1].x;
+    var pixely2 = yRange(originy2) + nodes[1].y;
+
+
     //update vars to match coordinates
-    firstx = nodes[0].x;
-    firsty = nodes[0].y;
-    secondx = nodes[1].x;
-    secondy = nodes[1].y;
+    firstx = xRange.invert(pixelx1);
+    firsty = yRange.invert(pixely1);
+    secondx = xRange.invert(pixelx2);
+    secondy = yRange.invert(pixely2);
+
 
     redoXs();
 }
@@ -40,10 +52,10 @@ function displayVals() {}
 
 function updateLineData() {
     //resets and fills points
+    /*
     if (firstx < secondx) {
         bigX = secondx;
         smallX = firstx;
-        console.log(bigX, smallX);
     } else if (firstx == secondx) {
         smallX = 1;
         bigX = -2;
@@ -51,9 +63,9 @@ function updateLineData() {
         bigX = firstx;
         smallX = secondx;
     }
-
+    */
     lineData = [];
-    for (i = (smallX - 1); i < (bigX + 2); i = i + .1) {
+    for (i = (originx1 - 1); i < (originx2 + 2); i = i + .1) {
         lineData.push({
             x: i,
             y: getY(i)
@@ -75,7 +87,7 @@ function makeDots(xvalue, xvalue2) {
 /*
 function updateBars() {
     var existingBar = document.querySelectorAll(".myBars");
-    existingBar.transition();
+    existingBarutransition();
     // update the data on each data point defined by 'propertyNames'
     existingBar.select("myBars" + function (d) {
             return d.colour;
@@ -101,20 +113,20 @@ $(document).ready(function () {
             right: 20,
             bottom: 20,
             left: 50
-        },
-        xRange = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(lineData, function (d) {
-            return d.x;
-        }), d3.max(lineData, function (d) {
-            return d.x;
-        })]),
-        yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(lineData, function (d) {
-            return d.y - 1;
-        }), d3.max(lineData, function (d) {
-            return d.y;
-        })]),
+        }
+    xRange = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(lineData, function (d) {
+        return d.x;
+    }), d3.max(lineData, function (d) {
+        return d.x;
+    })])
+    yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(lineData, function (d) {
+        return d.y - 1;
+    }), d3.max(lineData, function (d) {
+        return d.y;
+    })])
 
-        //setup x
-        xAxis = d3.svg.axis()
+    //setup x
+    var xAxis = d3.svg.axis()
         .scale(xRange)
         .tickSize(5)
         .tickSubdivide(true),
@@ -125,6 +137,7 @@ $(document).ready(function () {
         .tickSize(5)
         .orient("left")
         .tickSubdivide(true);
+
 
     vis.append("svg:g")
         .attr("class", "x axis")
@@ -158,32 +171,19 @@ $(document).ready(function () {
         .origin(function (d) {
             return d;
         })
-        .on("drag", dragmove)
-        .on("dragend", function (d) {
-            //events to update line to fit dots
-            updateXs();
-            updateLineData();
-            console.log(bigX, smallX);
-
-            //update line
-            d3.select(".myLine").transition()
-                .attr("d", lineFunc(lineData));
-
-        });
+        .on("drag", dragmove);
 
     function dragmove(d) {
-        d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x - d.x) + "," + (d.y = d3.event.y) + ")");
-        /*
-                //events to update line to fit dots
-                updateXs();
-                updateLineData();
-                console.log(lineData);
-                console.log(bigX, smallX);
+        d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
 
-                //update line
-                d3.select(".myLine").transition()
-                    .attr("d", lineFunc(lineData));
-        */
+        //events to update line to fit dots
+        updateXs();
+        updateLineData();
+
+        //update line
+        d3.select(".myLine").transition()
+            .attr("d", lineFunc(lineData));
+
     }
 
     //puts in dots
@@ -217,7 +217,7 @@ $(document).ready(function () {
 
     //create scale
     yRange2 = d3.scale.linear().range([canvas.height - MARGINS.top,
-MARGINS.bottom]).domain([0, 5]);
+MARGINS.bottom]).domain([0, 10]);
 
     //Process the data
 
@@ -306,6 +306,7 @@ MARGINS.bottom]).domain([0, 5]);
 
             data.push(datum)
         }
+        console.log(xtwo, xone, xzero);
         bars = canvas.selectAll('rect').data(data)
             .style("fill", function (d) {
                 return d.colour;
