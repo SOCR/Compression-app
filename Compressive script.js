@@ -1,4 +1,5 @@
 var slider = $("#myRange").val();
+var xthree;
 var xtwo;
 var xone;
 var xzero;
@@ -42,14 +43,29 @@ function updateXs() {
 }
 
 function redoXs() {
-    xtwo = (75 - slider) / 50;
-    xone = (secondy - firsty) / (secondx - firstx) - xtwo * (secondx + firstx);
-    xzero = firsty - (xtwo * firstx * firstx) - ((secondy - firsty) / (secondx - firstx)) * firstx + xtwo * (firstx + secondx) * firstx;
+    //always a dynamic variable
+    xone = (slider - 50) / 50;
+
+    //variables for use in equation
+    var varK = (firsty - secondy) / (Math.pow(firstx, 3) - Math.pow(secondx, 3));
+    var varL = (firstx - secondx) / (Math.pow(firstx, 3) - Math.pow(secondx, 3));
+    var varM = (Math.pow(firstx, 2) - Math.pow(secondx, 2)) / (Math.pow(firstx, 3) - Math.pow(secondx, 3));
+
+    var varAlpha = (firsty - (varK * Math.pow(firstx, 3))) / (Math.pow(firstx, 2) - Math.pow(firstx, 3) * varM);
+
+    var varBeta = 1 / (Math.pow(firstx, 2) - Math.pow(firstx, 3) * varM);
+
+    var varDelta = (firstx - Math.pow(firstx, 3) * varL) / (Math.pow(firstx, 2) - Math.pow(firstx, 3) * varM);
+
+    //variables for equation
+    xzero = ((varK - xone * varL - varAlpha + varDelta * xone) * Math.pow(thirdx, 3) + (varAlpha - varDelta * xone) * Math.pow(thirdx, 2) + xone * thirdx) / (varBeta * Math.pow(thirdx, 3) - varBeta * Math.pow(thirdx, 2) + 1);
+    xtwo = varAlpha - varBeta * xzero - varDelta * xone;
+    xthree = varK - xone * varL - xtwo * varM;
 }
 
 //gets corresponding y from x and coefficients
 function getY(xval) {
-    return (xval * xval * xtwo + xval * xone + xzero);
+    return (Math.pow(xval, 3) * xthree + xval * xval * xtwo + xval * xone + xzero);
 }
 
 function displayVals() {}
@@ -78,14 +94,19 @@ function updateLineData() {
 
 }
 //makes dots for static points
-function makeDots(xvalue, xvalue2) {
+function makeDots(xvalue, xvalue2, xvalue3) {
     nodes = [{
-        x: xvalue,
-        y: getY(xvalue)
+            x: xvalue,
+            y: getY(xvalue)
             }, {
-        x: xvalue2,
-        y: getY(xvalue2)
-            }];
+            x: xvalue2,
+            y: getY(xvalue2)
+            },
+        {
+            x: xvalue3,
+            y: getY(xvalue3)
+             }
+                 ];
 
 }
 /*
@@ -107,7 +128,6 @@ $(document).ready(function () {
     redoXs();
 
     updateLineData();
-    displayVals();
 
     var vis = d3.select('#visual'),
         WIDTH = 1000,
@@ -168,7 +188,7 @@ $(document).ready(function () {
         .attr("stroke-width", 2)
         .attr("fill", "none");
 
-    makeDots(firstx, secondx);
+    makeDots(firstx, secondx, thirdx1);
 
     //behavior for a dragged point
     var drag = d3.behavior.drag()
