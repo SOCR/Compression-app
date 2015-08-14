@@ -30,13 +30,16 @@ function updateXs() {
     var pixely1 = yRange(originy1) + nodes[0].y;
     var pixelx2 = xRange(originx2) + nodes[1].x;
     var pixely2 = yRange(originy2) + nodes[1].y;
-
+    var pixelx3 = xRange(originx3) + nodes[2].x;
+    var pixely3 = yRange(originy3) + nodes[2].y;
 
     //update vars to match coordinates
     firstx = xRange.invert(pixelx1);
     firsty = yRange.invert(pixely1);
     secondx = xRange.invert(pixelx2);
     secondy = yRange.invert(pixely2);
+    thirdx = xRange.invert(pixelx3);
+    thirdy = xRange.invert(pixely3);
 
 
     redoXs();
@@ -85,7 +88,7 @@ function updateLineData() {
     }
     */
     lineData = [];
-    for (i = (originx1 - 1); i < (originx2 + 2); i = i + .1) {
+    for (i = (originx1 - 1); i < (originx3 + 2); i = i + .1) {
         lineData.push({
             x: i,
             y: getY(i)
@@ -188,7 +191,7 @@ $(document).ready(function () {
         .attr("stroke-width", 2)
         .attr("fill", "none");
 
-    makeDots(firstx, secondx, thirdx1);
+    makeDots(firstx, secondx, thirdx);
 
     //behavior for a dragged point
     var drag = d3.behavior.drag()
@@ -233,9 +236,9 @@ $(document).ready(function () {
     var canvas = d3.select("#canvas");
     canvas.width = 500;
     canvas.height = 350;
-    var values = [xtwo, xone, xzero];
+    var values = [Math.abs(xthree), Math.abs(xtwo), Math.abs(xone), Math.abs(xzero)];
 
-    var colours = ['#FA0', '#0AF', '#AF0'];
+    var colours = ['#A0F', '#FA0', '#0AF', '#AF0'];
 
     var yOffset = 0;
 
@@ -310,12 +313,12 @@ MARGINS.bottom]).domain([0, 10]);
         //update line
         d3.select(".myLine").transition()
             .attr("d", lineFunc(lineData));
-
+        console.log(thirdy, lineData(thirdy));
         //update bars
         cumValues = 0;
         yOffset = 0;
         data = [];
-        var values = [Math.abs(xtwo), Math.abs(xone), Math.abs(xzero)];
+        var values = [Math.abs(xthree), Math.abs(xtwo), Math.abs(xone), Math.abs(xzero)];
         for (var i = 0; i < values.length; i++) {
 
             var datum = {
