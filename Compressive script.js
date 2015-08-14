@@ -6,6 +6,8 @@ var firstx = -1;
 var firsty = 1;
 var secondx = 2;
 var secondy = 4;
+var thirdx = 4;
+var thirdy = 5;
 var lineData = [];
 var nodes = [];
 var data = [];
@@ -17,6 +19,8 @@ var originx1 = firstx;
 var originy1 = firsty;
 var originx2 = secondx;
 var originy2 = secondy;
+var originx3 = thirdx;
+var originy3 = thirdy;
 
 //updates coefficients
 function updateXs() {
