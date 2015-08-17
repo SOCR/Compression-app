@@ -28,6 +28,8 @@ var graphType = $("input[name=type]:checked").val();
 //updates coefficients
 function updateXs() {
 
+
+    console.log("upd med 1", thirdx, thirdy);
     var pixelx1 = xRange(originx1) + nodes[0].x;
     var pixely1 = yRange(originy1) + nodes[0].y;
     var pixelx2 = xRange(originx2) + nodes[1].x;
@@ -35,14 +37,16 @@ function updateXs() {
     var pixelx3 = xRange(originx3) + nodes[2].x;
     var pixely3 = yRange(originy3) + nodes[2].y;
 
+    console.log("upd med 2", thirdx, thirdy);
     //update vars to match coordinates
     firstx = xRange.invert(pixelx1);
     firsty = yRange.invert(pixely1);
     secondx = xRange.invert(pixelx2);
     secondy = yRange.invert(pixely2);
     thirdx = xRange.invert(pixelx3);
-    thirdy = xRange.invert(pixely3);
+    thirdy = yRange.invert(pixely3);
 
+    console.log("upd med 3", thirdx, thirdy);
 
     redoXs();
 }
@@ -134,11 +138,12 @@ function updateBars() {
 //function makeLine() {}
 
 $(document).ready(function () {
-    console.log(thirdx, thirdy);
+    console.log("start", thirdx, thirdy);
     redoXs();
 
     updateLineData();
 
+    console.log("after init", thirdx, thirdy);
 
     if (graphType == 1) {
         $("#myRange2").hide();
@@ -217,6 +222,7 @@ $(document).ready(function () {
         .on("drag", dragmove);
 
     function dragmove(d) {
+
         d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
 
         //events to update line to fit dots
@@ -226,6 +232,41 @@ $(document).ready(function () {
         //update line
         d3.select(".myLine").transition()
             .attr("d", lineFunc(lineData));
+
+        //update bars
+        cumValues = 0;
+        yOffset = 0;
+        data = [];
+        var values = [Math.abs(xthree), Math.abs(xtwo), Math.abs(xone), Math.abs(xzero)];
+        for (var i = 0; i < values.length; i++) {
+
+            var datum = {
+
+                value: yRange2(values[i]),
+                colour: colours[i],
+                x: 0,
+                y: yOffset
+
+            }
+            yOffset += (canvas.height - MARGINS.top - datum.value);
+
+            data.push(datum)
+        }
+        console.log("third dot, third x coord, third y coord:", nodes[2], thirdx, thirdy);
+        bars = canvas.selectAll('rect').data(data)
+            .style("fill", function (d) {
+                return d.colour;
+            })
+            .attr({
+                y: function (d) {
+                    return d.value - d.y;
+                },
+                height: function (d) {
+                    return canvas.height - MARGINS.top - d.value;
+                }
+            })
+            .transition(); //update works
+
 
     }
 
@@ -357,7 +398,6 @@ MARGINS.bottom]).domain([0, 10]);
 
             data.push(datum)
         }
-        console.log(xtwo, xone, xzero);
         bars = canvas.selectAll('rect').data(data)
             .style("fill", function (d) {
                 return d.colour;
@@ -404,7 +444,6 @@ MARGINS.bottom]).domain([0, 10]);
 
             data.push(datum)
         }
-        console.log(xtwo, xone, xzero);
         bars = canvas.selectAll('rect').data(data)
             .style("fill", function (d) {
                 return d.colour;
@@ -451,7 +490,6 @@ MARGINS.bottom]).domain([0, 10]);
 
             data.push(datum)
         }
-        console.log(xtwo, xone, xzero);
         bars = canvas.selectAll('rect').data(data)
             .style("fill", function (d) {
                 return d.colour;
@@ -467,5 +505,6 @@ MARGINS.bottom]).domain([0, 10]);
             .transition(); //update works
 
     });
+    console.log("load end", thirdx, thirdy);
 
 });
