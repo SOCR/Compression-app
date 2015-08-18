@@ -50,27 +50,34 @@ function updateXs() {
 
 function redoXs() {
     //always a dynamic variable
-    xone = (slider) / 50;
-    /*
-        //variables for use in equation
-        var varK = (firsty - secondy) / (Math.pow(firstx, 3) - Math.pow(secondx, 3));
-        var varL = (firstx - secondx) / (Math.pow(firstx, 3) - Math.pow(secondx, 3));
-        var varM = (Math.pow(firstx, 2) - Math.pow(secondx, 2)) / (Math.pow(firstx, 3) - Math.pow(secondx, 3));
+    xzero = (slider) / 50;
 
-        var varAlpha = (firsty - (varK * Math.pow(firstx, 3))) / (Math.pow(firstx, 2) - Math.pow(firstx, 3) * varM);
+    //vars for use in equation
+    var varM = (firsty / Math.pow(firstx, 3));
+    var varN = 1 / firstx;
+    var varP = 1 / (Math.pow(firstx, 2));
+    var varQ = 1 / (Math.pow(firstx, 3));
+    var varZ = 1 / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
 
-        var varBeta = 1 / (Math.pow(firstx, 2) - Math.pow(firstx, 3) * varM);
+    var varAlpha = (varP * Math.pow(secondx, 3) - secondx) * varZ;
+    var varBeta = (varQ * Math.pow(secondx, 3) - 1) * varZ;
+    var varGamma = (-varM * Math.pow(secondx, 3) + secondy) * varZ;
 
-        var varDelta = (firstx - Math.pow(firstx, 3) * varL) / (Math.pow(firstx, 2) - Math.pow(firstx, 3) * varM);
-    */
+    var varI = (Math.pow(thirdx, 2) * (thirdx * (varM - varN * varGamma) + varGamma));
+    var varJ = (thirdx + Math.pow(thirdx, 2) * (varAlpha - thirdx * (varP + varAlpha * varN)));
+    var varK = (1 + Math.pow(thirdx, 2) * (varBeta - thirdx * (varQ + varBeta * varN)));
+
     //variables for equation
     if (graphType == 2) {
-        xzero = (slider2) / 50;
+        xone = (slider2) / 50;
     } else {
-        xzero = (thirdy - (firsty * Math.pow(thirdx, 3) / Math.pow(firstx, 3)) + (secondy * Math.pow(thirdx, 3) / firstx) - (Math.pow(thirdx, 3) * (firsty * Math.pow(secondx, 3) / Math.pow(firstx, 3)) / firstx) + (Math.pow(thirdx, 3) * (xone * (secondx, 3) / Math.pow(xone, 2)) / firstx) + (xone * Math.pow(thirdx, 3) / Math.pow(firstx, 2)) - secondy * Math.pow(thirdx, 2) + (firsty * Math.pow(secondx, 3) * Math.pow(thirdx, 2) / Math.pow(firstx, 3)) - (xone * Math.pow(secondx, 3) * Math.pow(thirdx, 2) / Math.pow(firstx, 2)) + (xone * secondx * Math.pow(thirdx, 2)) - xone * thirdx) / (1 + (Math.pow(secondx, 3) * Math.pow(thirdx, 2) / Math.pow(firstx, 3)) + (Math.pow(thirdx, 3) / firstx) - Math.pow(thirdx, 2) - (Math.pow(secondx, 3) * Math.pow(thirdx, 3) * (1 / Math.pow(firstx, 3)) / firstx))
+        xone = (thirdy - varI - xzero * varK) / (varJ);
     }
-    xtwo = (secondy - (firsty * Math.pow(secondx, 3) / Math.pow(firstx, 3)) + (xone * Math.pow(secondx, 3) / Math.pow(firstx, 2)) + (xzero * Math.pow(secondx, 3) / Math.pow(firstx, 3)) - xone * secondx - xzero) / (Math.pow(secondx, 2) - (Math.pow(secondx, 3) / firstx));
-    xthree = (firsty / Math.pow(firstx, 3)) - (xtwo / firstx) - (xone / Math.pow(firstx, 2)) - (xzero / Math.pow(firstx, 3));
+    xtwo = xone * varAlpha + xzero * varBeta + varGamma;
+    //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
+    xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
+
+    document.getElementById("demo").innerHTML = "y = " + xthree + "x^3 + " + xtwo + "x^2 + " + xone + "x + " + xzero;
 }
 
 //gets corresponding y from x and coefficients
