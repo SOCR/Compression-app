@@ -288,7 +288,7 @@ $(document).ready(function () {
         .attr("cy", function (d) {
             return yRange(d.y);
         })
-        .attr("r", "10px")
+        .attr("r", "7px")
         .attr("fill", "black")
         .attr("transform", function (p) {
             return "translate(" + p.x + "," + p.y + ")";
