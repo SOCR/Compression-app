@@ -5,11 +5,11 @@ var xtwo;
 var xone;
 var xzero;
 var firstx = -1;
-var firsty = 1;
+var firsty = -4;
 var secondx = 2;
 var secondy = 4;
 var thirdx = 4;
-var thirdy = 5;
+var thirdy = 1;
 var lineData = [];
 var nodes = [];
 var data = [];
@@ -29,7 +29,6 @@ var graphType = $("input[name=type]:checked").val();
 function updateXs() {
 
 
-    console.log("upd med 1", thirdx, thirdy);
     var pixelx1 = xRange(originx1) + nodes[0].x;
     var pixely1 = yRange(originy1) + nodes[0].y;
     var pixelx2 = xRange(originx2) + nodes[1].x;
@@ -37,7 +36,6 @@ function updateXs() {
     var pixelx3 = xRange(originx3) + nodes[2].x;
     var pixely3 = yRange(originy3) + nodes[2].y;
 
-    console.log("upd med 2", thirdx, thirdy);
     //update vars to match coordinates
     firstx = xRange.invert(pixelx1);
     firsty = yRange.invert(pixely1);
@@ -46,7 +44,6 @@ function updateXs() {
     thirdx = xRange.invert(pixelx3);
     thirdy = yRange.invert(pixely3);
 
-    console.log("upd med 3", thirdx, thirdy);
 
     redoXs();
 }
@@ -103,6 +100,7 @@ function updateLineData() {
             x: i,
             y: getY(i)
         });
+
     }
 
 }
@@ -114,12 +112,12 @@ function makeDots(xvalue, xvalue2, xvalue3) {
             }, {
             x: xvalue2,
             y: getY(xvalue2)
-            },
-        {
+            }, {
             x: xvalue3,
             y: getY(xvalue3)
              }
                  ];
+    console.log(nodes);
 
 }
 /*
@@ -163,17 +161,17 @@ $(document).ready(function () {
             left: 50
         }
     xRange = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(lineData, function (d) {
-        return d.x;
-    }), d3.max(lineData, function (d) {
-        return d.x;
-    })])
-    yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(lineData, function (d) {
-        return d.y - 1;
-    }), d3.max(lineData, function (d) {
-        return d.y;
-    })])
-
-    //setup x
+            return d.x;
+        }), d3.max(lineData, function (d) {
+            return d.x;
+        })])
+        /*yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(lineData, function (d) {
+            return d.y - 1;
+        }), d3.max(lineData, function (d) {
+            return d.y + 2;
+        })])*/
+    yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([-10, 10])
+        //setup x
     var xAxis = d3.svg.axis()
         .scale(xRange)
         .tickSize(5)
@@ -252,7 +250,7 @@ $(document).ready(function () {
 
             data.push(datum)
         }
-        console.log("third dot, third x coord, third y coord:", nodes[2], thirdx, thirdy);
+        console.log("third x coord, third y coord:", thirdx, thirdy, yRange(thirdy), yRange(secondy));
         bars = canvas.selectAll('rect').data(data)
             .style("fill", function (d) {
                 return d.colour;
@@ -271,7 +269,9 @@ $(document).ready(function () {
     }
 
     //puts in dots
+    console.log(nodes);
     vis.selectAll(".nodes")
+        .data(nodes)
         .data(nodes)
         .enter().append("circle")
         .attr("class", "nodes")
