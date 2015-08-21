@@ -77,7 +77,7 @@ function redoXs() {
     //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
     xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
 
-    document.getElementById("demo").innerHTML = "y = " + xthree + "x^3 + " + xtwo + "x^2 + " + xone + "x + " + xzero;
+    document.getElementById("demo").innerHTML = "y = " + xthree + "x^3 " + "+ " + xtwo + "x^2 + " + xone + "x + " + xzero;
 }
 
 //gets corresponding y from x and coefficients
@@ -143,13 +143,13 @@ function updateBars() {
 //function makeLine() {}
 
 $(document).ready(function () {
-    console.log("start", thirdx, thirdy);
+    //redefine coefficient variables
     redoXs();
 
+    //define line points
     updateLineData();
 
-    console.log("after init", thirdx, thirdy);
-
+    //hides slider depending on option
     if (graphType == 1) {
         $("#myRange2").hide();
     } else {
@@ -157,7 +157,7 @@ $(document).ready(function () {
         $("#myRange2").show();
     }
 
-
+    //graph objects for line graph are defined
     var vis = d3.select('#visual'),
         WIDTH = 1000,
         HEIGHT = 350,
@@ -178,7 +178,8 @@ $(document).ready(function () {
             return d.y + 2;
         })])*/
     yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([-10, 10])
-        //setup x
+
+    //setup x
     var xAxis = d3.svg.axis()
         .scale(xRange)
         .tickSize(5)
@@ -191,7 +192,7 @@ $(document).ready(function () {
         .orient("left")
         .tickSubdivide(true);
 
-
+    //axes defined
     vis.append("svg:g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
@@ -210,6 +211,7 @@ $(document).ready(function () {
             return yRange(d.y);
         });
 
+    //define line
     vis.append("svg:path")
         .attr("class", "myLine")
         .attr("d", lineFunc(lineData))
@@ -217,6 +219,7 @@ $(document).ready(function () {
         .attr("stroke-width", 2)
         .attr("fill", "none");
 
+    //define 3 "static" points
     makeDots(firstx, secondx, thirdx);
 
     //behavior for a dragged point
@@ -295,20 +298,45 @@ $(document).ready(function () {
         })
         .call(drag);
 
-    //Bar Graph
+    /*Bar Graph*/
 
     var canvas = d3.select("#canvas");
     canvas.width = 500;
-    canvas.height = 350;
-    var values = [Math.abs(xthree), Math.abs(xtwo), Math.abs(xone), Math.abs(xzero)];
+    canvas.height = 500;
+    var barMARGINS = {
+        top: 10,
+        right: 10,
+        bottom: 10,
+        left: 10
+    }
 
-    var colours = ['#A0F', '#FA0', '#0AF', '#AF0'];
+    //rectangle values
+    var values = [{
+        cValue: Math.abs(xthree),
+        color: '#A0F'
+    }, {
+        cValue: Math.abs(xtwo),
+        color: '#FA0'
+    }, {
+        cValue: Math.abs(xone),
+        color: '#0AF'
+    }, {
+        cValue: Math.abs(xzero),
+        color: '#AF0'
+    }];
+
+    //var colours = ['#A0F', '#FA0', '#0AF', '#AF0'];
 
     var yOffset = 0;
 
     //create scale
-    yRange2 = d3.scale.linear().range([canvas.height - MARGINS.top,
-MARGINS.bottom]).domain([0, 10]);
+    //yRange2 = d3.scale.linear().range([canvas.height - MARGINS.top,
+    //MARGINS.bottom]).domain([0, 10]);
+
+    //yrange2- imp-Set domain to be set to biggest number
+    yRange2 = d3.scale.linear()
+        .domain([0, 10])
+        .range([barMARGINS.bottom, canvas.height - barMARGINS.top]);
 
     //Process the data
 
@@ -316,15 +344,14 @@ MARGINS.bottom]).domain([0, 10]);
 
         var datum = {
 
-            value: yRange2(values[i]),
-            colour: colours[i],
-            x: 0,
-            y: yOffset
+            value: yRange2(values[i].cValue),
+            colour: values[i].color,
+            y: 0,
+            x: yOffset
 
         }
 
-        yOffset += (canvas.height - MARGINS.top - datum.value);
-
+        yOffset += (datum.value);
         data.push(datum)
     }
 
@@ -332,12 +359,12 @@ MARGINS.bottom]).domain([0, 10]);
     yAxis2 = d3.svg.axis()
         .scale(yRange2)
         .tickSize(5)
-        .orient("left")
+        .orient("bottom")
         .tickSubdivide(true);
 
     canvas.append("svg:g")
-        .attr("class", "y axis")
-        .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + (3 * MARGINS.bottom) + ")")
         .call(yAxis2);
 
     var bars = canvas.selectAll('rect').data(data)
@@ -350,13 +377,13 @@ MARGINS.bottom]).domain([0, 10]);
             return d.colour;
         })
         .attr({
-            width: 30,
-            x: 60,
-            y: function (d) {
-                return d.value - d.y;
+            height: 30,
+            y: 20,
+            x: function (d) {
+                return barMARGINS.left + d.x;
             },
-            height: function (d) {
-                return canvas.height - MARGINS.top - d.value;
+            width: function (d) {
+                return d.value;
             }
         })
         .style({
