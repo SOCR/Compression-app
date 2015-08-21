@@ -24,6 +24,8 @@ var originy2 = secondy;
 var originx3 = thirdx;
 var originy3 = thirdy;
 var graphType = $("input[name=type]:checked").val();
+var bars;
+var barMARGINS;
 
 //updates coefficients
 function updateXs() {
@@ -111,6 +113,57 @@ function updateLineData() {
     }
 
 }
+
+function updateBars() {
+    cumValues = 0;
+    yOffset = 0;
+    data = [];
+
+    var values = [{
+        cValue: Math.abs(xthree),
+        color: '#A0F'
+    }, {
+        cValue: Math.abs(xtwo),
+        color: '#FA0'
+    }, {
+        cValue: Math.abs(xone),
+        color: '#0AF'
+    }, {
+        cValue: Math.abs(xzero),
+        color: '#AF0'
+    }];
+
+    for (var i = 0; i < values.length; i++) {
+
+        var datum = {
+
+            value: yRange2(values[i].cValue),
+            colour: values[i].color,
+            y: 0,
+            x: yOffset
+
+        }
+
+        yOffset += (datum.value);
+        data.push(datum)
+    }
+
+    bars
+        .attr({
+            x: function (d) {
+                return barMARGINS.left + d.x;
+            },
+            width: function (d) {
+                return d.value;
+            }
+        })
+        .style({
+            fill: function (d) {
+                return d.colour
+            }
+        });
+}
+
 //makes dots for static points
 function makeDots(xvalue, xvalue2, xvalue3) {
     nodes = [{
@@ -242,39 +295,96 @@ $(document).ready(function () {
             .attr("d", lineFunc(lineData));
 
         //update bars
+        //updateBars();
         cumValues = 0;
         yOffset = 0;
         data = [];
-        var values = [Math.abs(xthree), Math.abs(xtwo), Math.abs(xone), Math.abs(xzero)];
+
+        var values = [{
+            cValue: Math.abs(xthree),
+            color: '#A0F'
+    }, {
+            cValue: Math.abs(xtwo),
+            color: '#FA0'
+    }, {
+            cValue: Math.abs(xone),
+            color: '#0AF'
+    }, {
+            cValue: Math.abs(xzero),
+            color: '#AF0'
+    }];
+
         for (var i = 0; i < values.length; i++) {
 
             var datum = {
 
-                value: yRange2(values[i]),
-                colour: colours[i],
-                x: 0,
-                y: yOffset
+                value: yRange2(values[i].cValue),
+                colour: values[i].color,
+                y: 0,
+                x: yOffset
 
             }
-            yOffset += (canvas.height - MARGINS.top - datum.value);
-
+            yOffset += (datum.value);
             data.push(datum)
         }
-        console.log("third x coord, third y coord:", thirdx, thirdy, yRange(thirdy), yRange(secondy));
+
         bars = canvas.selectAll('rect').data(data)
-            .style("fill", function (d) {
-                return d.colour;
-            })
+
+        bars
             .attr({
-                y: function (d) {
-                    return d.value - d.y;
+                x: function (d) {
+                    return barMARGINS.left + d.x;
                 },
-                height: function (d) {
-                    return canvas.height - MARGINS.top - d.value;
+                width: function (d) {
+                    return d.value;
                 }
             })
-            .transition(); //update works
+            .style({
+                fill: function (d) {
+                    return d.colour
+                }
+            })
+            .transition();
 
+
+        var smallestCVal = 100;
+        var smallestX = -1;
+
+        for (var j = 0.01; j < 2; j += .01) {
+            xzero = j;
+
+            var varM = (firsty / Math.pow(firstx, 3));
+            var varN = 1 / firstx;
+            var varP = 1 / (Math.pow(firstx, 2));
+            var varQ = 1 / (Math.pow(firstx, 3));
+            var varZ = 1 / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
+
+            var varAlpha = (varP * Math.pow(secondx, 3) - secondx) * varZ;
+            var varBeta = (varQ * Math.pow(secondx, 3) - 1) * varZ;
+            var varGamma = (-varM * Math.pow(secondx, 3) + secondy) * varZ;
+
+            var varI = (Math.pow(thirdx, 2) * (thirdx * (varM - varN * varGamma) + varGamma));
+            var varJ = (thirdx + Math.pow(thirdx, 2) * (varAlpha - thirdx * (varP + varAlpha * varN)));
+            var varK = (1 + Math.pow(thirdx, 2) * (varBeta - thirdx * (varQ + varBeta * varN)));
+
+            //variables for equation
+
+            xone = (thirdy - varI - xzero * varK) / (varJ);
+
+            xtwo = xone * varAlpha + xzero * varBeta + varGamma;
+            //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
+            xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
+
+            if ((xthree + xtwo + xone + xzero) < smallestCVal) {
+                smallestCVal = (xthree + xtwo + xone + xzero);
+                smallestX = j;
+            }
+        }
+
+        console.log(smallestX);
+
+
+        document.getElementById("demo2").innerHTML = "Smallest coefficients are found in: y = " + xthree + "x^3 " + "+ " + xtwo + "x^2 + " + xone + "x + " + xzero + ", when the slider = " + smallestX;
 
     }
 
@@ -303,7 +413,7 @@ $(document).ready(function () {
     var canvas = d3.select("#canvas");
     canvas.width = 500;
     canvas.height = 500;
-    var barMARGINS = {
+    barMARGINS = {
         top: 10,
         right: 10,
         bottom: 10,
@@ -367,7 +477,7 @@ $(document).ready(function () {
         .attr("transform", "translate(0," + (3 * MARGINS.bottom) + ")")
         .call(yAxis2);
 
-    var bars = canvas.selectAll('rect').data(data)
+    bars = canvas.selectAll('rect').data(data)
 
     var cumValues = 0;
     bars
@@ -390,7 +500,52 @@ $(document).ready(function () {
             fill: function (d) {
                 return d.colour
             }
+
+
+
         });
+
+
+    var smallestCVal = 100;
+    var smallestX = -1;
+
+    for (var j = 0.01; j < 2; j += .01) {
+        xzero = j;
+
+        var varM = (firsty / Math.pow(firstx, 3));
+        var varN = 1 / firstx;
+        var varP = 1 / (Math.pow(firstx, 2));
+        var varQ = 1 / (Math.pow(firstx, 3));
+        var varZ = 1 / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
+
+        var varAlpha = (varP * Math.pow(secondx, 3) - secondx) * varZ;
+        var varBeta = (varQ * Math.pow(secondx, 3) - 1) * varZ;
+        var varGamma = (-varM * Math.pow(secondx, 3) + secondy) * varZ;
+
+        var varI = (Math.pow(thirdx, 2) * (thirdx * (varM - varN * varGamma) + varGamma));
+        var varJ = (thirdx + Math.pow(thirdx, 2) * (varAlpha - thirdx * (varP + varAlpha * varN)));
+        var varK = (1 + Math.pow(thirdx, 2) * (varBeta - thirdx * (varQ + varBeta * varN)));
+
+        //variables for equation
+
+        xone = (thirdy - varI - xzero * varK) / (varJ);
+
+        xtwo = xone * varAlpha + xzero * varBeta + varGamma;
+        //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
+        xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
+
+        if ((xthree + xtwo + xone + xzero) < smallestCVal) {
+            smallestCVal = (xthree + xtwo + xone + xzero);
+            smallestX = j;
+        }
+    }
+
+    console.log(smallestX);
+
+
+    document.getElementById("demo2").innerHTML = "Smallest coefficients are found in: y = " + xthree + "x^3 " + "+ " + xtwo + "x^2 + " + xone + "x + " + xzero + ", when the slider = " + smallestX;
+
+
 
     //update when buttons change
     $("input[type]:radio").change(function () {
@@ -414,38 +569,56 @@ $(document).ready(function () {
             .attr("d", lineFunc(lineData));
 
         //update bars
+        //updateBars();
         cumValues = 0;
         yOffset = 0;
         data = [];
-        var values = [Math.abs(xthree), Math.abs(xtwo), Math.abs(xone), Math.abs(xzero)];
+
+        var values = [{
+            cValue: Math.abs(xthree),
+            color: '#A0F'
+    }, {
+            cValue: Math.abs(xtwo),
+            color: '#FA0'
+    }, {
+            cValue: Math.abs(xone),
+            color: '#0AF'
+    }, {
+            cValue: Math.abs(xzero),
+            color: '#AF0'
+    }];
+
         for (var i = 0; i < values.length; i++) {
 
             var datum = {
 
-                value: yRange2(values[i]),
-                colour: colours[i],
-                x: 0,
-                y: yOffset
+                value: yRange2(values[i].cValue),
+                colour: values[i].color,
+                y: 0,
+                x: yOffset
 
             }
-            yOffset += (canvas.height - MARGINS.top - datum.value);
-
+            yOffset += (datum.value);
             data.push(datum)
         }
+
         bars = canvas.selectAll('rect').data(data)
-            .style("fill", function (d) {
-                return d.colour;
-            })
+
+        bars
             .attr({
-                y: function (d) {
-                    return d.value - d.y;
+                x: function (d) {
+                    return barMARGINS.left + d.x;
                 },
-                height: function (d) {
-                    return canvas.height - MARGINS.top - d.value;
+                width: function (d) {
+                    return d.value;
                 }
             })
-            .transition(); //update works
-
+            .style({
+                fill: function (d) {
+                    return d.colour
+                }
+            })
+            .transition();
     });
     //updates when slider changes
     $("#myRange").change(function () {
@@ -460,38 +633,95 @@ $(document).ready(function () {
             .attr("d", lineFunc(lineData));
 
         //update bars
+        //updateBars();
         cumValues = 0;
         yOffset = 0;
         data = [];
-        var values = [Math.abs(xthree), Math.abs(xtwo), Math.abs(xone), Math.abs(xzero)];
+
+        var values = [{
+            cValue: Math.abs(xthree),
+            color: '#A0F'
+    }, {
+            cValue: Math.abs(xtwo),
+            color: '#FA0'
+    }, {
+            cValue: Math.abs(xone),
+            color: '#0AF'
+    }, {
+            cValue: Math.abs(xzero),
+            color: '#AF0'
+    }];
+
         for (var i = 0; i < values.length; i++) {
 
             var datum = {
 
-                value: yRange2(values[i]),
-                colour: colours[i],
-                x: 0,
-                y: yOffset
+                value: yRange2(values[i].cValue),
+                colour: values[i].color,
+                y: 0,
+                x: yOffset
 
             }
-            yOffset += (canvas.height - MARGINS.top - datum.value);
-
+            yOffset += (datum.value);
             data.push(datum)
         }
+
         bars = canvas.selectAll('rect').data(data)
-            .style("fill", function (d) {
-                return d.colour;
-            })
+
+        bars
             .attr({
-                y: function (d) {
-                    return d.value - d.y;
+                x: function (d) {
+                    return barMARGINS.left + d.x;
                 },
-                height: function (d) {
-                    return canvas.height - MARGINS.top - d.value;
+                width: function (d) {
+                    return d.value;
                 }
             })
-            .transition(); //update works
+            .style({
+                fill: function (d) {
+                    return d.colour
+                }
+            })
+            .transition();
 
+
+        var smallestCVal = 100;
+        var smallestX = -1;
+
+        for (var j = 0.01; j < 2; j += .01) {
+            xzero = j;
+
+            var varM = (firsty / Math.pow(firstx, 3));
+            var varN = 1 / firstx;
+            var varP = 1 / (Math.pow(firstx, 2));
+            var varQ = 1 / (Math.pow(firstx, 3));
+            var varZ = 1 / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
+
+            var varAlpha = (varP * Math.pow(secondx, 3) - secondx) * varZ;
+            var varBeta = (varQ * Math.pow(secondx, 3) - 1) * varZ;
+            var varGamma = (-varM * Math.pow(secondx, 3) + secondy) * varZ;
+
+            var varI = (Math.pow(thirdx, 2) * (thirdx * (varM - varN * varGamma) + varGamma));
+            var varJ = (thirdx + Math.pow(thirdx, 2) * (varAlpha - thirdx * (varP + varAlpha * varN)));
+            var varK = (1 + Math.pow(thirdx, 2) * (varBeta - thirdx * (varQ + varBeta * varN)));
+
+            //variables for equation
+
+            xone = (thirdy - varI - xzero * varK) / (varJ);
+
+            xtwo = xone * varAlpha + xzero * varBeta + varGamma;
+            //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
+            xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
+
+            if ((xthree + xtwo + xone + xzero) < smallestCVal) {
+                smallestCVal = (xthree + xtwo + xone + xzero);
+                smallestX = j;
+            }
+        }
+
+        console.log(smallestX);
+
+        document.getElementById("demo2").innerHTML = "Smallest coefficients are found in: y = " + xthree + "x^3 " + "+ " + xtwo + "x^2 + " + xone + "x + " + xzero + ", when the slider = " + smallestX;
     });
 
     $("#myRange2").change(function () {
@@ -506,39 +736,55 @@ $(document).ready(function () {
             .attr("d", lineFunc(lineData));
 
         //update bars
+        //updateBars();
         cumValues = 0;
         yOffset = 0;
         data = [];
-        var values = [Math.abs(xthree), Math.abs(xtwo), Math.abs(xone), Math.abs(xzero)];
+
+        var values = [{
+            cValue: Math.abs(xthree),
+            color: '#A0F'
+    }, {
+            cValue: Math.abs(xtwo),
+            color: '#FA0'
+    }, {
+            cValue: Math.abs(xone),
+            color: '#0AF'
+    }, {
+            cValue: Math.abs(xzero),
+            color: '#AF0'
+    }];
+
         for (var i = 0; i < values.length; i++) {
 
             var datum = {
 
-                value: yRange2(values[i]),
-                colour: colours[i],
-                x: 0,
-                y: yOffset
+                value: yRange2(values[i].cValue),
+                colour: values[i].color,
+                y: 0,
+                x: yOffset
 
             }
-            yOffset += (canvas.height - MARGINS.top - datum.value);
-
+            yOffset += (datum.value);
             data.push(datum)
         }
+
         bars = canvas.selectAll('rect').data(data)
-            .style("fill", function (d) {
-                return d.colour;
-            })
+
+        bars
             .attr({
-                y: function (d) {
-                    return d.value - d.y;
+                x: function (d) {
+                    return barMARGINS.left + d.x;
                 },
-                height: function (d) {
-                    return canvas.height - MARGINS.top - d.value;
+                width: function (d) {
+                    return d.value;
                 }
             })
-            .transition(); //update works
-
+            .style({
+                fill: function (d) {
+                    return d.colour
+                }
+            })
+            .transition();
     });
-    console.log("load end", thirdx, thirdy);
-
 });
