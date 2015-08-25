@@ -52,7 +52,7 @@ function updateXs() {
 
 function redoXs() {
     //always a dynamic variable
-    xzero = (slider) / 50;
+    xzero = (slider) * 2 - 100;
 
     //vars for use in equation
     var varM = (firsty / Math.pow(firstx, 3));
@@ -85,6 +85,14 @@ function redoXs() {
 //gets corresponding y from x and coefficients
 function getY(xval) {
     return (Math.pow(xval, 3) * xthree + xval * xval * xtwo + xval * xone + xzero);
+}
+
+function setSlider() {
+    findCompression();
+
+    document.getElementById("myRange").value = (smallestX + 100) / 2;
+    $("#myRange").trigger("change");
+
 }
 
 function displayVals() {}
@@ -177,9 +185,52 @@ function makeDots(xvalue, xvalue2, xvalue3) {
             y: getY(xvalue3)
              }
                  ];
-    console.log(nodes);
 
 }
+
+function findCompression() {
+    var smallestCVal = 100;
+    smallestX = -1;
+
+    for (var j = -100; j < 100; j += 1) {
+        xzero = j;
+
+        var varM = (firsty / Math.pow(firstx, 3));
+        var varN = 1 / firstx;
+        var varP = 1 / (Math.pow(firstx, 2));
+        var varQ = 1 / (Math.pow(firstx, 3));
+        var varZ = 1 / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
+        var varAlpha = (varP * Math.pow(secondx, 3) - secondx) * varZ;
+        var varBeta = (varQ * Math.pow(secondx, 3) - 1) * varZ;
+        var varGamma = (-varM * Math.pow(secondx, 3) + secondy) * varZ;
+
+        var varI = (Math.pow(thirdx, 2) * (thirdx * (varM - varN * varGamma) + varGamma));
+        var varJ = (thirdx + Math.pow(thirdx, 2) * (varAlpha - thirdx * (varP + varAlpha * varN)));
+        var varK = (1 + Math.pow(thirdx, 2) * (varBeta - thirdx * (varQ + varBeta * varN)));
+
+        //variables for equation
+
+        xone = (thirdy - varI - xzero * varK) / (varJ);
+
+        xtwo = xone * varAlpha + xzero * varBeta + varGamma;
+        //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
+        xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
+
+        if ((Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) < smallestCVal) {
+            smallestCVal = (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero));
+            smallestX = j;
+            console.log("the smallest cvalue and xval are now: " +
+                (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) + ", " + smallestX);
+        }
+    }
+
+
+
+    document.getElementById("demo2").innerHTML = "Smallest coefficients are found when the slider = " + smallestX;
+
+
+}
+
 /*
 function updateBars() {
     var existingBar = document.querySelectorAll(".myBars");
@@ -347,49 +398,10 @@ $(document).ready(function () {
             .transition();
 
 
-        var smallestCVal = 100;
-        var smallestX = -1;
-
-        for (var j = 0.01; j < 2; j += .01) {
-            xzero = j;
-
-            var varM = (firsty / Math.pow(firstx, 3));
-            var varN = 1 / firstx;
-            var varP = 1 / (Math.pow(firstx, 2));
-            var varQ = 1 / (Math.pow(firstx, 3));
-            var varZ = 1 / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
-
-            var varAlpha = (varP * Math.pow(secondx, 3) - secondx) * varZ;
-            var varBeta = (varQ * Math.pow(secondx, 3) - 1) * varZ;
-            var varGamma = (-varM * Math.pow(secondx, 3) + secondy) * varZ;
-
-            var varI = (Math.pow(thirdx, 2) * (thirdx * (varM - varN * varGamma) + varGamma));
-            var varJ = (thirdx + Math.pow(thirdx, 2) * (varAlpha - thirdx * (varP + varAlpha * varN)));
-            var varK = (1 + Math.pow(thirdx, 2) * (varBeta - thirdx * (varQ + varBeta * varN)));
-
-            //variables for equation
-
-            xone = (thirdy - varI - xzero * varK) / (varJ);
-
-            xtwo = xone * varAlpha + xzero * varBeta + varGamma;
-            //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
-            xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
-
-            if ((xthree + xtwo + xone + xzero) < smallestCVal) {
-                smallestCVal = (xthree + xtwo + xone + xzero);
-                smallestX = j;
-            }
-        }
-
-        console.log(smallestX);
-
-
-        document.getElementById("demo2").innerHTML = "Smallest coefficients are found in: y = " + xthree + "x^3 " + "+ " + xtwo + "x^2 + " + xone + "x + " + xzero + ", when the slider = " + smallestX;
-
+        findCompression();
     }
 
     //puts in dots
-    console.log(nodes);
     vis.selectAll(".nodes")
         .data(nodes)
         .data(nodes)
@@ -506,45 +518,7 @@ $(document).ready(function () {
         });
 
 
-    var smallestCVal = 100;
-    var smallestX = -1;
-
-    for (var j = 0.01; j < 2; j += .01) {
-        xzero = j;
-
-        var varM = (firsty / Math.pow(firstx, 3));
-        var varN = 1 / firstx;
-        var varP = 1 / (Math.pow(firstx, 2));
-        var varQ = 1 / (Math.pow(firstx, 3));
-        var varZ = 1 / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
-
-        var varAlpha = (varP * Math.pow(secondx, 3) - secondx) * varZ;
-        var varBeta = (varQ * Math.pow(secondx, 3) - 1) * varZ;
-        var varGamma = (-varM * Math.pow(secondx, 3) + secondy) * varZ;
-
-        var varI = (Math.pow(thirdx, 2) * (thirdx * (varM - varN * varGamma) + varGamma));
-        var varJ = (thirdx + Math.pow(thirdx, 2) * (varAlpha - thirdx * (varP + varAlpha * varN)));
-        var varK = (1 + Math.pow(thirdx, 2) * (varBeta - thirdx * (varQ + varBeta * varN)));
-
-        //variables for equation
-
-        xone = (thirdy - varI - xzero * varK) / (varJ);
-
-        xtwo = xone * varAlpha + xzero * varBeta + varGamma;
-        //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
-        xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
-
-        if ((xthree + xtwo + xone + xzero) < smallestCVal) {
-            smallestCVal = (xthree + xtwo + xone + xzero);
-            smallestX = j;
-        }
-    }
-
-    console.log(smallestX);
-
-
-    document.getElementById("demo2").innerHTML = "Smallest coefficients are found in: y = " + xthree + "x^3 " + "+ " + xtwo + "x^2 + " + xone + "x + " + xzero + ", when the slider = " + smallestX;
-
+    findCompression();
 
 
     //update when buttons change
@@ -685,43 +659,7 @@ $(document).ready(function () {
             .transition();
 
 
-        var smallestCVal = 100;
-        var smallestX = -1;
-
-        for (var j = 0.01; j < 2; j += .01) {
-            xzero = j;
-
-            var varM = (firsty / Math.pow(firstx, 3));
-            var varN = 1 / firstx;
-            var varP = 1 / (Math.pow(firstx, 2));
-            var varQ = 1 / (Math.pow(firstx, 3));
-            var varZ = 1 / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
-
-            var varAlpha = (varP * Math.pow(secondx, 3) - secondx) * varZ;
-            var varBeta = (varQ * Math.pow(secondx, 3) - 1) * varZ;
-            var varGamma = (-varM * Math.pow(secondx, 3) + secondy) * varZ;
-
-            var varI = (Math.pow(thirdx, 2) * (thirdx * (varM - varN * varGamma) + varGamma));
-            var varJ = (thirdx + Math.pow(thirdx, 2) * (varAlpha - thirdx * (varP + varAlpha * varN)));
-            var varK = (1 + Math.pow(thirdx, 2) * (varBeta - thirdx * (varQ + varBeta * varN)));
-
-            //variables for equation
-
-            xone = (thirdy - varI - xzero * varK) / (varJ);
-
-            xtwo = xone * varAlpha + xzero * varBeta + varGamma;
-            //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
-            xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
-
-            if ((xthree + xtwo + xone + xzero) < smallestCVal) {
-                smallestCVal = (xthree + xtwo + xone + xzero);
-                smallestX = j;
-            }
-        }
-
-        console.log(smallestX);
-
-        document.getElementById("demo2").innerHTML = "Smallest coefficients are found in: y = " + xthree + "x^3 " + "+ " + xtwo + "x^2 + " + xone + "x + " + xzero + ", when the slider = " + smallestX;
+        findCompression();
     });
 
     $("#myRange2").change(function () {
