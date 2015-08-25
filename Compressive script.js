@@ -71,7 +71,7 @@ function redoXs() {
 
     //variables for equation
     if (graphType == 2) {
-        xone = (slider2) / 50;
+        xone = (slider2) * 2 - 100;
     } else {
         xone = (thirdy - varI - xzero * varK) / (varJ);
     }
@@ -91,7 +91,11 @@ function setSlider() {
     findCompression();
 
     document.getElementById("myRange").value = (smallestX + 100) / 2;
+    if (graphType == 2) {
+        document.getElementById("myRange2").value = (smallestSecondX + 100) / 2;
+    }
     $("#myRange").trigger("change");
+    $("#myRange2").trigger("change");
 
 }
 
@@ -191,6 +195,8 @@ function makeDots(xvalue, xvalue2, xvalue3) {
 function findCompression() {
     var smallestCVal = 100;
     smallestX = -1;
+    smallestSecondX = -1;
+
 
     for (var j = -100; j < 100; j += 1) {
         xzero = j;
@@ -209,24 +215,45 @@ function findCompression() {
         var varK = (1 + Math.pow(thirdx, 2) * (varBeta - thirdx * (varQ + varBeta * varN)));
 
         //variables for equation
+        if (graphType == 1) {
+            xone = (thirdy - varI - xzero * varK) / (varJ);
 
-        xone = (thirdy - varI - xzero * varK) / (varJ);
+            xtwo = xone * varAlpha + xzero * varBeta + varGamma;
+            xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
 
-        xtwo = xone * varAlpha + xzero * varBeta + varGamma;
-        //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
-        xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
+            if ((Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) < smallestCVal) {
+                smallestCVal = (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero));
+                smallestX = j;
+                console.log("the smallest cvalue and xval are now: " +
+                    (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) + ", " + smallestX);
+            }
+        } else {
+            for (var k = -100; k < 100; k += 1) {
+                //xone becomes second loop dependent
+                xone = k;
 
-        if ((Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) < smallestCVal) {
-            smallestCVal = (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero));
-            smallestX = j;
-            console.log("the smallest cvalue and xval are now: " +
-                (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) + ", " + smallestX);
+                xtwo = xone * varAlpha + xzero * varBeta + varGamma;
+                xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
+
+                //checks if cvals are greatest
+                if ((Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) < smallestCVal) {
+                    smallestCVal = (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero));
+                    smallestX = j;
+                    smallestSecondX = k;
+                    console.log("the smallest cvalue and xval are now: " +
+                        (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) + ", " + smallestX);
+                }
+            }
         }
     }
 
 
 
-    document.getElementById("demo2").innerHTML = "Smallest coefficients are found when the slider = " + smallestX;
+
+
+
+
+    document.getElementById("demo2").innerHTML = "Smallest coefficients are found when the slider = " + smallestX + ", " + smallestSecondX;
 
 
 }
