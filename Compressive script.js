@@ -326,12 +326,12 @@ $(document).ready(function () {
     //axes defined
     vis.append("svg:g")
         .attr("class", "x axis")
-        .attr("transform", "translate(0," + (HEIGHT - MARGINS.bottom) + ")")
+        .attr("transform", "translate(0," + yRange(0) + ")")
         .call(xAxis);
 
     vis.append("svg:g")
         .attr("class", "y axis")
-        .attr("transform", "translate(" + (MARGINS.left) + ",0)")
+        .attr("transform", "translate(" + xRange(0) + ",0)")
         .call(yAxis);
 
     var lineFunc = d3.svg.line()
