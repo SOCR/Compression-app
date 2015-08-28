@@ -2,9 +2,8 @@
 <html>
 
 <!-- Saib Husain
-8/10/15 
-Compressive Sensing App 
-Added auto-line updating -->
+8/28/15 
+Compressive Sensing App -->
 
 <head>
     <title>Compression</title>
@@ -29,20 +28,39 @@ Added auto-line updating -->
         .bar {
             fill: FireBrick;
         }
+        
+        .barGraph {
+            position: absolute;
+            left: 330px;
+            top: 25px;
+        }
 
     </style>
-</head>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [
+                    ['$', '$'],
+                    ["\\(", "\\)"]
+                ],
+                processEscapes: true
+            }
+        });
 
-<body>
-    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js">
-
-
+    </script>
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({ TeX: { extensions: ["color.js"] }});
     </script>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+</head>
+
+<body>
 
     <input type="range" id="myRange" value="50" step="1">
+    <input type="number" id="myText">
     <input type="range" id="myRange2" value="50" step="1">
+    <input type="number" id="myText2">
     <br>
     <input type="radio" name="type" value="2">Two degrees of freedom and two anchor points
     <br>
@@ -60,7 +78,7 @@ Added auto-line updating -->
     <svg id="visual" width="1000" height="500"></svg>
 
 
-    <svg id="canvas" width="500" height="500"></svg>
+    <svg id="canvas" class="barGraph" width="500" height="100"></svg>
     <script src='./Compressive%20script.js'>
 
 

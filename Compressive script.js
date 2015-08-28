@@ -1,5 +1,7 @@
 var slider = $("#myRange").val();
 var slider2 = $("#myRange2").val();
+var text;
+var text2;
 var xthree;
 var xtwo;
 var xone;
@@ -50,8 +52,12 @@ function updateXs() {
     redoXs();
 }
 
+function roundNum(roundee) {
+    return (Math.round(roundee * 100)) / 100;
+}
+
 function redoXs() {
-    //always a dynamic variable
+    //always a dynamic variable HERE LAYS A SLIDER EQ
     xzero = (slider) * 2 - 100;
 
     //vars for use in equation
@@ -69,7 +75,7 @@ function redoXs() {
     var varJ = (thirdx + Math.pow(thirdx, 2) * (varAlpha - thirdx * (varP + varAlpha * varN)));
     var varK = (1 + Math.pow(thirdx, 2) * (varBeta - thirdx * (varQ + varBeta * varN)));
 
-    //variables for equation
+    //variables for equation SLIDER EQ
     if (graphType == 2) {
         xone = (slider2) * 2 - 100;
     } else {
@@ -79,13 +85,18 @@ function redoXs() {
     //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
     xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
 
-    document.getElementById("demo").innerHTML = "y = " + xthree + "x^3 " + "+ " + xtwo + "x^2 + " + xone + "x + " + xzero;
+    //output equation
+    document.getElementById("demo").innerHTML = "$y = $" + roundNum(xzero) + "$ + $" + roundNum(xone) + "$x + $" + roundNum(xtwo) + "$x^2 + $" + roundNum(xthree) + "$x^3$";
+    MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'demo'])
+        // document.getElementById("demo").innerHTML = "y = " + xthree + "x^3 " + "+ " + xtwo + "x^2 + " + xone + "x + " + xzero;
 }
 
 //gets corresponding y from x and coefficients
 function getY(xval) {
     return (Math.pow(xval, 3) * xthree + xval * xval * xtwo + xval * xone + xzero);
 }
+
+
 
 function setSlider() {
     findCompression();
@@ -224,8 +235,6 @@ function findCompression() {
             if ((Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) < smallestCVal) {
                 smallestCVal = (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero));
                 smallestX = j;
-                console.log("the smallest cvalue and xval are now: " +
-                    (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) + ", " + smallestX);
             }
         } else {
             for (var k = -100; k < 100; k += 1) {
@@ -240,8 +249,6 @@ function findCompression() {
                     smallestCVal = (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero));
                     smallestX = j;
                     smallestSecondX = k;
-                    console.log("the smallest cvalue and xval are now: " +
-                        (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) + ", " + smallestX);
                 }
             }
         }
@@ -252,8 +259,6 @@ function findCompression() {
 
 
 
-
-    document.getElementById("demo2").innerHTML = "Smallest coefficients are found when the slider = " + smallestX + ", " + smallestSecondX;
 
 
 }
@@ -280,18 +285,23 @@ $(document).ready(function () {
     //define line points
     updateLineData();
 
+    //update textboxes to fit sliders SLIDER EQ
+    document.getElementById("myText").value = slider * 2 - 100;
+    document.getElementById("myText2").value = slider2 * 2 - 100;
+
     //hides slider depending on option
     if (graphType == 1) {
+        document.getElementById("myText2").style.visibility = "hidden";
         $("#myRange2").hide();
     } else {
-
+        document.getElementById("myText2").style.visibility = "visible";
         $("#myRange2").show();
     }
 
     //graph objects for line graph are defined
     var vis = d3.select('#visual'),
         WIDTH = 1000,
-        HEIGHT = 350,
+        HEIGHT = 500,
         MARGINS = {
             top: 20,
             right: 20,
@@ -450,7 +460,7 @@ $(document).ready(function () {
     /*Bar Graph*/
 
     var canvas = d3.select("#canvas");
-    canvas.width = 500;
+    canvas.width = 100;
     canvas.height = 500;
     barMARGINS = {
         top: 10,
@@ -554,10 +564,14 @@ $(document).ready(function () {
 
 
         if (graphType == 1) {
+            document.getElementById("myText2").style.visibility = "hidden";
+
             $("#myRange2").hide();
-            //    nodes[2].style("opacity", "1");
+            //nodes[2].style("opacity", "0");
         } else {
             //   nodes[2].style("opacity", "0");
+
+            document.getElementById("myText2").style.visibility = "visible";
             $("#myRange2").show();
         }
 
@@ -621,9 +635,166 @@ $(document).ready(function () {
             })
             .transition();
     });
+    //updates when text boxes change
+    $("#myText").change(function () {
+
+        text = $("#myText").val();
+        //if (text < 100 && text > -100) {
+        slider = (Number(text) + 100) / 2;
+        //} else if (text < -100) {
+        //    slider = 0;
+        //} else {
+        //    slider = 100;
+        //}
+        document.getElementById("myRange").value = slider;
+
+
+        updateXs();
+        updateLineData();
+        displayVals();
+
+        //update line
+        d3.select(".myLine").transition()
+            .attr("d", lineFunc(lineData));
+
+        //update bars
+        //updateBars();
+        cumValues = 0;
+        yOffset = 0;
+        data = [];
+
+        var values = [{
+            cValue: Math.abs(xthree),
+            color: '#A0F'
+    }, {
+            cValue: Math.abs(xtwo),
+            color: '#FA0'
+    }, {
+            cValue: Math.abs(xone),
+            color: '#0AF'
+    }, {
+            cValue: Math.abs(xzero),
+            color: '#AF0'
+    }];
+
+        for (var i = 0; i < values.length; i++) {
+
+            var datum = {
+
+                value: yRange2(values[i].cValue),
+                colour: values[i].color,
+                y: 0,
+                x: yOffset
+
+            }
+            yOffset += (datum.value);
+            data.push(datum)
+        }
+
+        bars = canvas.selectAll('rect').data(data)
+
+        bars
+            .attr({
+                x: function (d) {
+                    return barMARGINS.left + d.x;
+                },
+                width: function (d) {
+                    return d.value;
+                }
+            })
+            .style({
+                fill: function (d) {
+                    return d.colour
+                }
+            })
+            .transition();
+
+
+        findCompression();
+    });
+    //updates when second text box changes
+    $("#myText2").change(function () {
+
+        text2 = $("#myText2").val();
+        //if (text < 100 && text > -100) {
+        slider2 = (Number(text2) + 100) / 2;
+        //} else if (text < -100) {
+        //    slider = 0;
+        //} else {
+        //    slider = 100;
+        //}
+        document.getElementById("myRange2").value = slider2;
+
+
+        updateXs();
+        updateLineData();
+        displayVals();
+
+        //update line
+        d3.select(".myLine").transition()
+            .attr("d", lineFunc(lineData));
+
+        //update bars
+        //updateBars();
+        cumValues = 0;
+        yOffset = 0;
+        data = [];
+
+        var values = [{
+            cValue: Math.abs(xthree),
+            color: '#A0F'
+    }, {
+            cValue: Math.abs(xtwo),
+            color: '#FA0'
+    }, {
+            cValue: Math.abs(xone),
+            color: '#0AF'
+    }, {
+            cValue: Math.abs(xzero),
+            color: '#AF0'
+    }];
+
+        for (var i = 0; i < values.length; i++) {
+
+            var datum = {
+
+                value: yRange2(values[i].cValue),
+                colour: values[i].color,
+                y: 0,
+                x: yOffset
+
+            }
+            yOffset += (datum.value);
+            data.push(datum)
+        }
+
+        bars = canvas.selectAll('rect').data(data)
+
+        bars
+            .attr({
+                x: function (d) {
+                    return barMARGINS.left + d.x;
+                },
+                width: function (d) {
+                    return d.value;
+                }
+            })
+            .style({
+                fill: function (d) {
+                    return d.colour
+                }
+            })
+            .transition();
+
+
+        findCompression();
+    });
+
     //updates when slider changes
     $("#myRange").change(function () {
         slider = $("#myRange").val();
+        document.getElementById("myText").value = slider * 2 - 100;
+
 
         updateXs();
         updateLineData();
@@ -691,6 +862,8 @@ $(document).ready(function () {
 
     $("#myRange2").change(function () {
         slider2 = $("#myRange2").val();
+        document.getElementById("myText2").value = slider2 * 2 - 100;
+
 
         updateXs();
         updateLineData();
