@@ -56,9 +56,34 @@ function roundNum(roundee) {
     return (Math.round(roundee * 100)) / 100;
 }
 
+function getRange() {
+    Array.max = function (array) {
+        return Math.max.apply(Math, array);
+    };
+
+    Array.min = function (array) {
+        return Math.min.apply(Math, array);
+    };
+
+    var pointsArray = [firstx, secondx, thirdx]
+
+    var minimum = Array.min(pointsArray);
+    var maximum = Array.max(pointsArray);
+
+    minimum -= (Math.abs((maximum - minimum) / 2));
+    maximum += (Math.abs((maximum - minimum) / 2));
+
+    if (Math.abs(maximum) > Math.abs(minimum)) {
+        rangeStandard = Math.abs(maximum)
+    } else {
+        rangeStandard = Math.abs(minimum);
+    }
+}
+
 function redoXs() {
     //always a dynamic variable HERE LAYS A SLIDER EQ
-    xzero = (slider) * 2 - 100;
+    getRange();
+    xzero = (slider) * (rangeStandard / 50) - (rangeStandard);
 
     //vars for use in equation
     var varM = (firsty / Math.pow(firstx, 3));
@@ -77,7 +102,7 @@ function redoXs() {
 
     //variables for equation SLIDER EQ
     if (graphType == 2) {
-        xone = (slider2) * 2 - 100;
+        xone = (slider2) * (rangeStandard / 50) - (rangeStandard);
     } else {
         xone = (thirdy - varI - xzero * varK) / (varJ);
     }
@@ -100,10 +125,10 @@ function getY(xval) {
 
 function setSlider() {
     findCompression();
-
-    document.getElementById("myRange").value = (smallestX + 100) / 2;
+getRange();
+    document.getElementById("myRange").value = (smallestX + rangeStandard) / (rangeStandard / 50);
     if (graphType == 2) {
-        document.getElementById("myRange2").value = (smallestSecondX + 100) / 2;
+        document.getElementById("myRange2").value = (smallestSecondX + rangeStandard) / (rangeStandard / 50);
     }
     $("#myRange").trigger("change");
     $("#myRange2").trigger("change");
@@ -142,17 +167,18 @@ function updateBars() {
     yOffset = 0;
     data = [];
 
+    //---
     var values = [{
-        cValue: Math.abs(xthree),
+        cValue: Math.abs(xzero),
         color: '#A0F'
     }, {
-        cValue: Math.abs(xtwo),
+        cValue: Math.abs(xone),
         color: '#FA0'
     }, {
-        cValue: Math.abs(xone),
+        cValue: Math.abs(xtwo),
         color: '#0AF'
     }, {
-        cValue: Math.abs(xzero),
+        cValue: Math.abs(xthree),
         color: '#AF0'
     }];
 
@@ -235,6 +261,10 @@ function findCompression() {
             if ((Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) < smallestCVal) {
                 smallestCVal = (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero));
                 smallestX = j;
+                console.log("The smallest value and x are " + smallestCVal + ", " + j);
+                if (j > 0) {
+                    console.log("asdf" + j);
+                }
             }
         } else {
             for (var k = -100; k < 100; k += 1) {
@@ -285,9 +315,7 @@ $(document).ready(function () {
     //define line points
     updateLineData();
 
-    //update textboxes to fit sliders SLIDER EQ
-    document.getElementById("myText").value = slider * 2 - 100;
-    document.getElementById("myText2").value = slider2 * 2 - 100;
+    
 
     //hides slider depending on option
     if (graphType == 1) {
@@ -388,17 +416,18 @@ $(document).ready(function () {
         yOffset = 0;
         data = [];
 
+        //---
         var values = [{
-            cValue: Math.abs(xthree),
+            cValue: Math.abs(xzero),
             color: '#A0F'
     }, {
-            cValue: Math.abs(xtwo),
+            cValue: Math.abs(xone),
             color: '#FA0'
     }, {
-            cValue: Math.abs(xone),
+            cValue: Math.abs(xtwo),
             color: '#0AF'
     }, {
-            cValue: Math.abs(xzero),
+            cValue: Math.abs(xthree),
             color: '#AF0'
     }];
 
@@ -456,6 +485,11 @@ $(document).ready(function () {
             return "translate(" + p.x + "," + p.y + ")";
         })
         .call(drag);
+    
+    //update textboxes to fit sliders SLIDER EQ
+    getRange();
+    document.getElementById("myText").value = slider * (rangeStandard / 50) - (rangeStandard);
+    document.getElementById("myText2").value = slider2 * (rangeStandard / 50) - (rangeStandard);
 
     /*Bar Graph*/
 
@@ -470,21 +504,21 @@ $(document).ready(function () {
     }
 
     //rectangle values
+    //---
     var values = [{
-        cValue: Math.abs(xthree),
+        cValue: Math.abs(xzero),
         color: '#A0F'
     }, {
-        cValue: Math.abs(xtwo),
+        cValue: Math.abs(xone),
         color: '#FA0'
     }, {
-        cValue: Math.abs(xone),
+        cValue: Math.abs(xtwo),
         color: '#0AF'
     }, {
-        cValue: Math.abs(xzero),
+        cValue: Math.abs(xthree),
         color: '#AF0'
     }];
 
-    //var colours = ['#A0F', '#FA0', '#0AF', '#AF0'];
 
     var yOffset = 0;
 
@@ -588,18 +622,18 @@ $(document).ready(function () {
         cumValues = 0;
         yOffset = 0;
         data = [];
-
+        //---
         var values = [{
-            cValue: Math.abs(xthree),
+            cValue: Math.abs(xzero),
             color: '#A0F'
     }, {
-            cValue: Math.abs(xtwo),
+            cValue: Math.abs(xone),
             color: '#FA0'
     }, {
-            cValue: Math.abs(xone),
+            cValue: Math.abs(xtwo),
             color: '#0AF'
     }, {
-            cValue: Math.abs(xzero),
+            cValue: Math.abs(xthree),
             color: '#AF0'
     }];
 
@@ -637,15 +671,9 @@ $(document).ready(function () {
     });
     //updates when text boxes change
     $("#myText").change(function () {
-
+getRange();
         text = $("#myText").val();
-        //if (text < 100 && text > -100) {
-        slider = (Number(text) + 100) / 2;
-        //} else if (text < -100) {
-        //    slider = 0;
-        //} else {
-        //    slider = 100;
-        //}
+        slider = (Number(text) + rangeStandard) / (rangeStandard / 50);
         document.getElementById("myRange").value = slider;
 
 
@@ -663,17 +691,18 @@ $(document).ready(function () {
         yOffset = 0;
         data = [];
 
+        //---
         var values = [{
-            cValue: Math.abs(xthree),
+            cValue: Math.abs(xzero),
             color: '#A0F'
     }, {
-            cValue: Math.abs(xtwo),
+            cValue: Math.abs(xone),
             color: '#FA0'
     }, {
-            cValue: Math.abs(xone),
+            cValue: Math.abs(xtwo),
             color: '#0AF'
     }, {
-            cValue: Math.abs(xzero),
+            cValue: Math.abs(xthree),
             color: '#AF0'
     }];
 
@@ -715,14 +744,9 @@ $(document).ready(function () {
     //updates when second text box changes
     $("#myText2").change(function () {
 
+getRange();
         text2 = $("#myText2").val();
-        //if (text < 100 && text > -100) {
-        slider2 = (Number(text2) + 100) / 2;
-        //} else if (text < -100) {
-        //    slider = 0;
-        //} else {
-        //    slider = 100;
-        //}
+        slider2 = (Number(text2) + rangeStandard) / (rangeStandard / 50);
         document.getElementById("myRange2").value = slider2;
 
 
@@ -740,17 +764,18 @@ $(document).ready(function () {
         yOffset = 0;
         data = [];
 
+        //---
         var values = [{
-            cValue: Math.abs(xthree),
+            cValue: Math.abs(xzero),
             color: '#A0F'
     }, {
-            cValue: Math.abs(xtwo),
+            cValue: Math.abs(xone),
             color: '#FA0'
     }, {
-            cValue: Math.abs(xone),
+            cValue: Math.abs(xtwo),
             color: '#0AF'
     }, {
-            cValue: Math.abs(xzero),
+            cValue: Math.abs(xthree),
             color: '#AF0'
     }];
 
@@ -810,17 +835,18 @@ $(document).ready(function () {
         yOffset = 0;
         data = [];
 
+        //---
         var values = [{
-            cValue: Math.abs(xthree),
+            cValue: Math.abs(xzero),
             color: '#A0F'
     }, {
-            cValue: Math.abs(xtwo),
+            cValue: Math.abs(xone),
             color: '#FA0'
     }, {
-            cValue: Math.abs(xone),
+            cValue: Math.abs(xtwo),
             color: '#0AF'
     }, {
-            cValue: Math.abs(xzero),
+            cValue: Math.abs(xthree),
             color: '#AF0'
     }];
 
@@ -858,6 +884,7 @@ $(document).ready(function () {
 
 
         findCompression();
+
     });
 
     $("#myRange2").change(function () {
@@ -879,17 +906,18 @@ $(document).ready(function () {
         yOffset = 0;
         data = [];
 
+        //---
         var values = [{
-            cValue: Math.abs(xthree),
+            cValue: Math.abs(xzero),
             color: '#A0F'
     }, {
-            cValue: Math.abs(xtwo),
+            cValue: Math.abs(xone),
             color: '#FA0'
     }, {
-            cValue: Math.abs(xone),
+            cValue: Math.abs(xtwo),
             color: '#0AF'
     }, {
-            cValue: Math.abs(xzero),
+            cValue: Math.abs(xthree),
             color: '#AF0'
     }];
 
