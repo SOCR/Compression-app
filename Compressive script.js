@@ -78,6 +78,8 @@ function getRange() {
     } else {
         rangeStandard = Math.abs(minimum);
     }
+
+    rangeStandard = 100;
 }
 
 function redoXs() {
@@ -125,7 +127,7 @@ function getY(xval) {
 
 function setSlider() {
     findCompression();
-getRange();
+    getRange();
     document.getElementById("myRange").value = (smallestX + rangeStandard) / (rangeStandard / 50);
     if (graphType == 2) {
         document.getElementById("myRange2").value = (smallestSecondX + rangeStandard) / (rangeStandard / 50);
@@ -139,18 +141,6 @@ function displayVals() {}
 
 function updateLineData() {
     //resets and fills points
-    /*
-    if (firstx < secondx) {
-        bigX = secondx;
-        smallX = firstx;
-    } else if (firstx == secondx) {
-        smallX = 1;
-        bigX = -2;
-    } else {
-        bigX = firstx;
-        smallX = secondx;
-    }
-    */
     lineData = [];
     for (i = (originx1 - 1); i < (originx3 + 2); i = i + .1) {
         lineData.push({
@@ -161,6 +151,18 @@ function updateLineData() {
     }
 
 }
+
+//redoes the line completely
+function redoLine() {
+    updateLineData();
+
+    //update line
+    d3.select(".myLine").transition()
+        .attr("d", lineFunc(lineData));
+}
+
+//zooms view out
+
 
 function updateBars() {
     cumValues = 0;
@@ -261,7 +263,7 @@ function findCompression() {
             if ((Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero)) < smallestCVal) {
                 smallestCVal = (Math.abs(xthree) + Math.abs(xtwo) + Math.abs(xone) + Math.abs(xzero));
                 smallestX = j;
-                console.log("The smallest value and x are " + smallestCVal + ", " + j);
+
                 if (j > 0) {
                     console.log("asdf" + j);
                 }
@@ -315,7 +317,7 @@ $(document).ready(function () {
     //define line points
     updateLineData();
 
-    
+
 
     //hides slider depending on option
     if (graphType == 1) {
@@ -327,7 +329,7 @@ $(document).ready(function () {
     }
 
     //graph objects for line graph are defined
-    var vis = d3.select('#visual'),
+    vis = d3.select('#visual'),
         WIDTH = 1000,
         HEIGHT = 500,
         MARGINS = {
@@ -349,7 +351,7 @@ $(document).ready(function () {
     yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([-10, 10])
 
     //setup x
-    var xAxis = d3.svg.axis()
+    xAxis = d3.svg.axis()
         .scale(xRange)
         .tickSize(5)
         .tickSubdivide(true),
@@ -362,17 +364,17 @@ $(document).ready(function () {
         .tickSubdivide(true);
 
     //axes defined
-    vis.append("svg:g")
+    xAxisGroup = vis.append("svg:g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + yRange(0) + ")")
         .call(xAxis);
 
-    vis.append("svg:g")
+    yAxisGroup = vis.append("svg:g")
         .attr("class", "y axis")
         .attr("transform", "translate(" + xRange(0) + ",0)")
         .call(yAxis);
 
-    var lineFunc = d3.svg.line()
+    lineFunc = d3.svg.line()
         .x(function (d) {
             return xRange(d.x);
         })
@@ -404,11 +406,7 @@ $(document).ready(function () {
 
         //events to update line to fit dots
         updateXs();
-        updateLineData();
-
-        //update line
-        d3.select(".myLine").transition()
-            .attr("d", lineFunc(lineData));
+        redoLine();
 
         //update bars
         //updateBars();
@@ -467,9 +465,17 @@ $(document).ready(function () {
         findCompression();
     }
 
+    circleAttrs = {
+        cx: function (d) {
+            return xScale(d.x);
+        },
+        cy: function (d) {
+            return yScale(d.y);
+        }
+    };
+
     //puts in dots
     vis.selectAll(".nodes")
-        .data(nodes)
         .data(nodes)
         .enter().append("circle")
         .attr("class", "nodes")
@@ -485,7 +491,7 @@ $(document).ready(function () {
             return "translate(" + p.x + "," + p.y + ")";
         })
         .call(drag);
-    
+
     //update textboxes to fit sliders SLIDER EQ
     getRange();
     document.getElementById("myText").value = slider * (rangeStandard / 50) - (rangeStandard);
@@ -591,6 +597,57 @@ $(document).ready(function () {
 
     findCompression();
 
+    function zoomOut() {
+
+        //update axis
+        yRange.domain([d3.min(lineData, function (d) {
+            return d.y - 10;
+        }), d3.max(lineData, function (d) {
+            return d.y + 10;
+        })])
+
+        yAxisGroup.transition().call(yAxis);
+
+        xAxisGroup.transition().attr("transform", "translate(0," + yRange(0) + ")");
+
+        //update line
+        d3.select(".myLine").transition()
+            .attr("d", lineFunc(lineData));
+
+
+
+        var c = vis.selectAll("circle")
+
+        c.transition()
+            .attr(circleAttrs)
+
+
+    }
+
+    window.zoomOut = zoomOut;
+
+    //restores view
+    function restoreView() {
+        //update axis
+        yRange.domain([-10, 10])
+
+        yAxisGroup.transition().call(yAxis);
+
+        xAxisGroup.transition().attr("transform", "translate(0," + yRange(0) + ")");
+
+        //update line
+        d3.select(".myLine").transition()
+            .attr("d", lineFunc(lineData));
+
+        var c = vis.selectAll("circle")
+
+        c.transition()
+            .attr(circleAttrs)
+
+
+    }
+
+    window.restoreView = restoreView;
 
     //update when buttons change
     $("input[type]:radio").change(function () {
@@ -610,12 +667,7 @@ $(document).ready(function () {
         }
 
         updateXs();
-        updateLineData();
-        displayVals();
-
-        //update line
-        d3.select(".myLine").transition()
-            .attr("d", lineFunc(lineData));
+        redoLine();
 
         //update bars
         //updateBars();
@@ -671,19 +723,15 @@ $(document).ready(function () {
     });
     //updates when text boxes change
     $("#myText").change(function () {
-getRange();
+        getRange();
         text = $("#myText").val();
         slider = (Number(text) + rangeStandard) / (rangeStandard / 50);
         document.getElementById("myRange").value = slider;
 
 
+        console.log($("#myRange").val());
         updateXs();
-        updateLineData();
-        displayVals();
-
-        //update line
-        d3.select(".myLine").transition()
-            .attr("d", lineFunc(lineData));
+        redoLine();
 
         //update bars
         //updateBars();
@@ -744,19 +792,14 @@ getRange();
     //updates when second text box changes
     $("#myText2").change(function () {
 
-getRange();
+        getRange();
         text2 = $("#myText2").val();
         slider2 = (Number(text2) + rangeStandard) / (rangeStandard / 50);
         document.getElementById("myRange2").value = slider2;
 
 
         updateXs();
-        updateLineData();
-        displayVals();
-
-        //update line
-        d3.select(".myLine").transition()
-            .attr("d", lineFunc(lineData));
+        redoLine();
 
         //update bars
         //updateBars();
@@ -822,12 +865,7 @@ getRange();
 
 
         updateXs();
-        updateLineData();
-        displayVals();
-
-        //update line
-        d3.select(".myLine").transition()
-            .attr("d", lineFunc(lineData));
+        redoLine();
 
         //update bars
         //updateBars();
@@ -893,12 +931,7 @@ getRange();
 
 
         updateXs();
-        updateLineData();
-        displayVals();
-
-        //update line
-        d3.select(".myLine").transition()
-            .attr("d", lineFunc(lineData));
+        redoLine();
 
         //update bars
         //updateBars();
