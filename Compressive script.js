@@ -56,11 +56,11 @@ function roundNum(roundee) {
     return (Math.round(roundee * 100)) / 100;
 }
 
-function displayNum(display) {
+function displayNum(display, color) {
     if (display < 0) {
-        return "$ - $" + Math.abs(display);
+        return "\\color{#000}{ - } \\color{" + color + "}{" + Math.abs(display) + "}";
     } else {
-        return "$ + $" + display;
+        return "\\color{#000}{ + } \\color{" + color + "}{" + display + "}";
     }
 }
 
@@ -121,12 +121,14 @@ function redoXs() {
     xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
 
     //output equation
-    document.getElementById("demo").innerHTML = "$y =  $" + roundNum(xzero) + displayNum(roundNum(xone)) + "$x$" + displayNum(roundNum(xtwo)) + "$x^2$" + displayNum(roundNum(xthree)) + "$x^3$";
+    document.getElementById("demo").innerHTML = "$y = \\color{#A0F}{" + roundNum(xzero) + displayNum(roundNum(xone), "#FA0") + "x}" + displayNum(roundNum(xtwo), "#0AF") + "x^2" + displayNum(roundNum(xthree), "#AF0") + "x^3$";
+    MathJax.Callback.Queue(["Typeset", MathJax.Hub, "demo"]);
+
+    //document.getElementById("demo").innerHTML = "$y =  $" + roundNum(xzero) + displayNum(roundNum(xone)) + "$x$" + displayNum(roundNum(xtwo)) + "$x^2$" + displayNum(roundNum(xthree)) + "$x^3$";
 
     //$\color{#AF0}{a}+\color{#FA0}{b}+\color{#0AF}{c}+\color{#A0F}{d}$
 
-    MathJax.Hub.Queue(["Typeset", MathJax.Hub, 'demo'])
-        // document.getElementById("demo").innerHTML = "y = " + xthree + "x^3 " + "+ " + xtwo + "x^2 + " + xone + "x + " + xzero;
+    // document.getElementById("demo").innerHTML = "y = " + xthree + "x^3 " + "+ " + xtwo + "x^2 + " + xone + "x + " + xzero;
 }
 
 //gets corresponding y from x and coefficients
