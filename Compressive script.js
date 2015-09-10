@@ -141,12 +141,12 @@ function getY(xval) {
 function setSlider() {
     findCompression();
     getRange();
-    document.getElementById("myRange").value = (smallestX + rangeStandard) / (rangeStandard / 50);
+    document.getElementById("myText").value = (smallestX);
     if (graphType == 2) {
-        document.getElementById("myRange2").value = (smallestSecondX + rangeStandard) / (rangeStandard / 50);
+        document.getElementById("myText2").value = (smallestSecondX);
     }
-    $("#myRange").trigger("change");
-    $("#myRange2").trigger("change");
+    $("#myText").trigger("change");
+    $("#myText2").trigger("change");
 
 }
 
