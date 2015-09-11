@@ -7,6 +7,8 @@ Compressive Sensing App -->
 
 <head>
     <title>Compression</title>
+    <h1>Introduction to compressive sensing</h1>
+
 
     <style>
         .axis path,
@@ -30,9 +32,9 @@ Compressive Sensing App -->
         }
         
         .barGraph {
-            position: absolute;
-            left: 330px;
-            top: 25px;
+            position: relative;
+            left: 231px;
+            top: 175px;
         }
 
     </style>
@@ -57,6 +59,16 @@ Compressive Sensing App -->
 
 <body>
     <!--${\usepackage{xcolor} \color{#AFO} {ABCDEF}}$-->
+    <p> When a digital signal is used by apps, samples will be taken from the original analog signal, via sampling. Sampling uses integer values to represent the times that will be used, and then takes the values at those times. By taking these samples from the analog signal, the data can be construed into a coherent digital signal.</p>
+    <p> The inherent problem from this method is that the number of samples that should be taken isn't certain. Reducing this number would decrease the amount of data spent when downloading files and such from the internet. One modern take for this problem is the idea of compressive sensing.</p>
+    <p> To look at how this approach works, first consider a cubic function. Normally, a total of four samples would be needed in order to define the equation, however, by assuming that the equation is sparse, the equation can be worked with further. In the case of a cubic, the sparsity can be a constant, (${f(t)= d}$), a linear, (${f(t)= cx}$), a quadratic, (${f(t)= bx^2}$), or a cubic, (${f(t)= ax^3}$).</p>
+    <p> In many applications, the signal will be sparse. These signals will often be much bigger than needed, simply because the actual information needed will be within a larger range that encompasses it.
+    </p>
+    <p> In the application below, the cubic can be recovered from three, or even two, samples, depending on if it is 1-sparse or 2-sparse, respectfully. By reducing the total value of the coefficients to a minimum, the sparse solution can be found,
+    </p>
+
+    <svg id="canvas" class="barGraph" width="500" height="100"></svg>
+    <br>
     <input type="range" id="myRange" value="50" step="1">
     <input type="number" id="myText">
     <input type="range" id="myRange2" value="50" step="1">
@@ -76,11 +88,11 @@ Compressive Sensing App -->
     <br>
     <br>
     <svg id="visual" width="1000" height="500"></svg>
-    <svg id="canvas" class="barGraph" width="500" height="100"></svg>
     <br>Check to zoom out
     <input type="checkbox" id="zoom">
     <script src='./Compressive%20script.js'></script>
-
+    <br>
+    <br> Credit to http://stemblab.github.io/cs-intro/ for base idea
 </body>
 
 </html>
