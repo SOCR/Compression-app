@@ -413,68 +413,69 @@ $(document).ready(function () {
         .on("drag", dragmove);
 
     function dragmove(d) {
+        if (useZoom = 0) {
+            d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
 
-        d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
+            //events to update line to fit dots
+            updateXs();
+            redoLine();
 
-        //events to update line to fit dots
-        updateXs();
-        redoLine();
+            //update bars
+            //updateBars();
+            cumValues = 0;
+            yOffset = 0;
+            data = [];
 
-        //update bars
-        //updateBars();
-        cumValues = 0;
-        yOffset = 0;
-        data = [];
-
-        //---
-        var values = [{
-            cValue: Math.abs(xzero),
-            color: '#A0F'
+            //---
+            var values = [{
+                cValue: Math.abs(xzero),
+                color: '#A0F'
     }, {
-            cValue: Math.abs(xone),
-            color: '#FA0'
+                cValue: Math.abs(xone),
+                color: '#FA0'
     }, {
-            cValue: Math.abs(xtwo),
-            color: '#0AF'
+                cValue: Math.abs(xtwo),
+                color: '#0AF'
     }, {
-            cValue: Math.abs(xthree),
-            color: '#AF0'
+                cValue: Math.abs(xthree),
+                color: '#AF0'
     }];
 
-        for (var i = 0; i < values.length; i++) {
+            for (var i = 0; i < values.length; i++) {
 
-            var datum = {
+                var datum = {
 
-                value: yRange2(values[i].cValue),
-                colour: values[i].color,
-                y: 0,
-                x: yOffset
+                    value: yRange2(values[i].cValue),
+                    colour: values[i].color,
+                    y: 0,
+                    x: yOffset
 
+                }
+                yOffset += (datum.value);
+                data.push(datum)
             }
-            yOffset += (datum.value);
-            data.push(datum)
+
+            bars = canvas.selectAll('rect').data(data)
+
+            bars
+                .attr({
+                    x: function (d) {
+                        return barMARGINS.left + d.x;
+                    },
+                    width: function (d) {
+                        return d.value;
+                    }
+                })
+                .style({
+                    fill: function (d) {
+                        return d.colour
+                    }
+                })
+                .transition();
+
+
+            findCompression();
         }
-
-        bars = canvas.selectAll('rect').data(data)
-
-        bars
-            .attr({
-                x: function (d) {
-                    return barMARGINS.left + d.x;
-                },
-                width: function (d) {
-                    return d.value;
-                }
-            })
-            .style({
-                fill: function (d) {
-                    return d.colour
-                }
-            })
-            .transition();
-
-
-        findCompression();
     }
 
     circleAttrs = {
