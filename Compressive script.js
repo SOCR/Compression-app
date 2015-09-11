@@ -28,6 +28,7 @@ var originy3 = thirdy;
 var graphType = $("input[name=type]:checked").val();
 var bars;
 var barMARGINS;
+var useZoom = $('#zoom').is(":checked");
 
 //updates coefficients
 function updateXs() {
@@ -149,8 +150,6 @@ function setSlider() {
     $("#myText2").trigger("change");
 
 }
-
-function displayVals() {}
 
 function updateLineData() {
     //resets and fills points
@@ -480,10 +479,10 @@ $(document).ready(function () {
 
     circleAttrs = {
         cx: function (d) {
-            return xScale(d.x);
+            return xRange(d.x);
         },
         cy: function (d) {
-            return yScale(d.y);
+            return yRange(d.y);
         }
     };
 
@@ -634,6 +633,7 @@ $(document).ready(function () {
         c.transition()
             .attr(circleAttrs)
 
+        console.log(firstx);
 
     }
 
@@ -661,6 +661,19 @@ $(document).ready(function () {
     }
 
     window.restoreView = restoreView;
+
+
+    $(':checkbox').change(function () {
+
+        useZoom = $('#zoom').is(":checked");
+
+        if (useZoom == 1) {
+            zoomOut();
+        } else {
+            restoreView();
+        }
+
+    });
 
     //update when buttons change
     $("input[type]:radio").change(function () {
@@ -742,9 +755,12 @@ $(document).ready(function () {
         document.getElementById("myRange").value = slider;
 
 
-        console.log($("#myRange").val());
         updateXs();
         redoLine();
+
+        if (useZoom == 1) {
+            zoomOut();
+        }
 
         //update bars
         //updateBars();
@@ -814,6 +830,10 @@ $(document).ready(function () {
         updateXs();
         redoLine();
 
+        if (useZoom == 1) {
+            zoomOut();
+        }
+
         //update bars
         //updateBars();
         cumValues = 0;
@@ -880,6 +900,10 @@ $(document).ready(function () {
         updateXs();
         redoLine();
 
+        if (useZoom == 1) {
+            zoomOut();
+        }
+
         //update bars
         //updateBars();
         cumValues = 0;
@@ -945,6 +969,10 @@ $(document).ready(function () {
 
         updateXs();
         redoLine();
+
+        if (useZoom == 1) {
+            zoomOut();
+        }
 
         //update bars
         //updateBars();
