@@ -56,11 +56,11 @@ function updateXs() {
 function roundNum(roundee, type) {
     // return (Math.round(roundee * 100)) / 100;
     var newNum = Math.abs(roundee),
-        eVar = 0;;
-
+        eVar = 0;
+    console.log("asdf");
     //rounds scientifically
-    while (newNum < 0 || newNum >= 10) {
-        if (newNum < 0) {
+    while ((newNum < 1 || newNum >= 10) && newNum == 0) {
+        if (newNum < 1) {
             newNum *= 10;
             eVar--;
         }
@@ -71,11 +71,15 @@ function roundNum(roundee, type) {
         }
     }
 
+    newNum = (Math.round(newNum * 1000)) / 1000;
+
+
     //displays rounded num. for first number in equation
-    if (type = 1) {
+    if (type == 1) {
         return newNum + "e^" + eVar;
     } else {
-        return [newNum, eVar]
+        console.log("original number: " + roundee + " rounded: " + newNum + " evar: " + eVar);
+        return [newNum, eVar];
     }
 
 }
@@ -85,7 +89,6 @@ function displayNum(display, color) {
     var vals = roundNum(display, 2);
 
     if (display < 0) {
-        vals[1] = 0;
         return "\\color{#000}{ - } \\color{" + color + "}{" + vals[0] + "e^" + vals[1] + "}";
     } else {
         return "\\color{#000}{ + } \\color{" + color + "}{" + vals[0] + "e^" + vals[1] + "}";
