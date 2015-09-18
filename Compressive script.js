@@ -53,15 +53,42 @@ function updateXs() {
     redoXs();
 }
 
-function roundNum(roundee) {
-    return (Math.round(roundee * 100)) / 100;
+function roundNum(roundee, type) {
+    // return (Math.round(roundee * 100)) / 100;
+    var newNum = Math.abs(roundee),
+        eVar = 0;;
+
+    //rounds scientifically
+    while (newNum < 0 || newNum >= 10) {
+        if (newNum < 0) {
+            newNum *= 10;
+            eVar--;
+        }
+
+        if (newNum >= 10) {
+            newNum /= 10;
+            eVar++;
+        }
+    }
+
+    //displays rounded num. for first number in equation
+    if (type = 1) {
+        return newNum + "e^" + eVar;
+    } else {
+        return [newNum, eVar]
+    }
+
 }
 
 function displayNum(display, color) {
+    //uses roundnum to get scino values
+    var vals = roundNum(display, 2);
+
     if (display < 0) {
-        return "\\color{#000}{ - } \\color{" + color + "}{" + Math.abs(display) + "}";
+        vals[1] = 0;
+        return "\\color{#000}{ - } \\color{" + color + "}{" + vals[0] + "e^" + vals[1] + "}";
     } else {
-        return "\\color{#000}{ + } \\color{" + color + "}{" + display + "}";
+        return "\\color{#000}{ + } \\color{" + color + "}{" + vals[0] + "e^" + vals[1] + "}";
     }
 }
 
@@ -122,7 +149,7 @@ function redoXs() {
     xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
 
     //output equation
-    document.getElementById("demo").innerHTML = "$y = \\color{#A0F}{" + roundNum(xzero) + displayNum(roundNum(xone), "#FA0") + "x}" + displayNum(roundNum(xtwo), "#0AF") + "x^2" + displayNum(roundNum(xthree), "#AF0") + "x^3$";
+    document.getElementById("demo").innerHTML = "$y = \\color{#A0F}{" + roundNum(xzero, 1) + displayNum(xone, "#FA0") + "x}" + displayNum(xtwo, "#0AF") + "x^2" + displayNum(xthree, "#AF0") + "x^3$";
     MathJax.Callback.Queue(["Typeset", MathJax.Hub, "demo"]);
 
     //document.getElementById("demo").innerHTML = "$y =  $" + roundNum(xzero) + displayNum(roundNum(xone)) + "$x$" + displayNum(roundNum(xtwo)) + "$x^2$" + displayNum(roundNum(xthree)) + "$x^3$";
