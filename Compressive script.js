@@ -57,15 +57,15 @@ function roundNum(roundee, type) {
     // return (Math.round(roundee * 100)) / 100;
     var newNum = Math.abs(roundee),
         eVar = 0;
-    console.log("asdf");
+
     //rounds scientifically
-    while ((newNum < 1 || newNum >= 10) && newNum == 0) {
-        if (newNum < 1) {
+    while (newNum < 1 || newNum >= 10) {
+        if (newNum == 0) {
+            break;
+        } else if (newNum < 1) {
             newNum *= 10;
             eVar--;
-        }
-
-        if (newNum >= 10) {
+        } else if (newNum >= 10) {
             newNum /= 10;
             eVar++;
         }
@@ -76,9 +76,10 @@ function roundNum(roundee, type) {
 
     //displays rounded num. for first number in equation
     if (type == 1) {
-        return newNum + "e^" + eVar;
+        //console.log("original number: " + roundee + " rounded: " + newNum + " evar: " + eVar);
+        return newNum + "e^{" + eVar + "}";
     } else {
-        console.log("original number: " + roundee + " rounded: " + newNum + " evar: " + eVar);
+
         return [newNum, eVar];
     }
 
@@ -89,9 +90,9 @@ function displayNum(display, color) {
     var vals = roundNum(display, 2);
 
     if (display < 0) {
-        return "\\color{#000}{ - } \\color{" + color + "}{" + vals[0] + "e^" + vals[1] + "}";
+        return "\\color{#000}{ - } \\color{" + color + "}{" + vals[0] + "e^{" + vals[1] + "}}";
     } else {
-        return "\\color{#000}{ + } \\color{" + color + "}{" + vals[0] + "e^" + vals[1] + "}";
+        return "\\color{#000}{ + } \\color{" + color + "}{" + vals[0] + "e^{" + vals[1] + "}}";
     }
 }
 
@@ -443,7 +444,10 @@ $(document).ready(function () {
         .on("drag", dragmove);
 
     function dragmove(d) {
-        if (useZoom = 0) {
+
+        var useZoom = $('#zoom').is(":checked");
+        console.log(useZoom);
+        if (useZoom == false) {
             d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
 
             //events to update line to fit dots
