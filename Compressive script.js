@@ -207,7 +207,7 @@ function redoLine() {
 //zooms view out
 
 
-function updateBars() {
+function updateBars(canvas) {
     cumValues = 0;
     yOffset = 0;
     data = [];
@@ -237,10 +237,11 @@ function updateBars() {
             x: yOffset
 
         }
-
         yOffset += (datum.value);
         data.push(datum)
     }
+
+    bars = canvas.selectAll('rect').data(data)
 
     bars
         .attr({
@@ -255,7 +256,8 @@ function updateBars() {
             fill: function (d) {
                 return d.colour
             }
-        });
+        })
+        .transition();
 }
 
 //makes dots for static points
@@ -338,20 +340,7 @@ function findCompression() {
 
 }
 
-/*
-function updateBars() {
-    var existingBar = document.querySelectorAll(".myBars");
-    existingBarutransition();
-    // update the data on each data point defined by 'propertyNames'
-    existingBar.select("myBars" + function (d) {
-            return d.colour;
-        })
-        .transition().ease("linear").duration(300)
-        .attr("y", barY(data, propertyNames[index]))
-        .attr("height", barHeight(data, propertyNames[index]));
-}
-*/
-//function makeLine() {}
+
 
 $(document).ready(function () {
     //redefine coefficient variables
@@ -455,57 +444,8 @@ $(document).ready(function () {
             redoLine();
 
             //update bars
-            //updateBars();
-            cumValues = 0;
-            yOffset = 0;
-            data = [];
-
-            //---
-            var values = [{
-                cValue: Math.abs(xzero),
-                color: '#A0F'
-    }, {
-                cValue: Math.abs(xone),
-                color: '#FA0'
-    }, {
-                cValue: Math.abs(xtwo),
-                color: '#0AF'
-    }, {
-                cValue: Math.abs(xthree),
-                color: '#AF0'
-    }];
-
-            for (var i = 0; i < values.length; i++) {
-
-                var datum = {
-
-                    value: yRange2(values[i].cValue),
-                    colour: values[i].color,
-                    y: 0,
-                    x: yOffset
-
-                }
-                yOffset += (datum.value);
-                data.push(datum)
-            }
-
-            bars = canvas.selectAll('rect').data(data)
-
-            bars
-                .attr({
-                    x: function (d) {
-                        return barMARGINS.left + d.x;
-                    },
-                    width: function (d) {
-                        return d.value;
-                    }
-                })
-                .style({
-                    fill: function (d) {
-                        return d.colour
-                    }
-                })
-                .transition();
+            
+        updateBars(canvas);
 
 
             findCompression();
@@ -731,56 +671,8 @@ $(document).ready(function () {
         redoLine();
 
         //update bars
-        //updateBars();
-        cumValues = 0;
-        yOffset = 0;
-        data = [];
-        //---
-        var values = [{
-            cValue: Math.abs(xzero),
-            color: '#A0F'
-    }, {
-            cValue: Math.abs(xone),
-            color: '#FA0'
-    }, {
-            cValue: Math.abs(xtwo),
-            color: '#0AF'
-    }, {
-            cValue: Math.abs(xthree),
-            color: '#AF0'
-    }];
-
-        for (var i = 0; i < values.length; i++) {
-
-            var datum = {
-
-                value: yRange2(values[i].cValue),
-                colour: values[i].color,
-                y: 0,
-                x: yOffset
-
-            }
-            yOffset += (datum.value);
-            data.push(datum)
-        }
-
-        bars = canvas.selectAll('rect').data(data)
-
-        bars
-            .attr({
-                x: function (d) {
-                    return barMARGINS.left + d.x;
-                },
-                width: function (d) {
-                    return d.value;
-                }
-            })
-            .style({
-                fill: function (d) {
-                    return d.colour
-                }
-            })
-            .transition();
+        
+        updateBars(canvas);
     });
     //updates when text boxes change
     $("#myText").change(function () {
@@ -798,8 +690,8 @@ $(document).ready(function () {
         }
 
         //update bars
-        //updateBars();
-        cumValues = 0;
+        updateBars(canvas);
+       /* cumValues = 0;
         yOffset = 0;
         data = [];
 
@@ -849,7 +741,7 @@ $(document).ready(function () {
                 }
             })
             .transition();
-
+*/
 
         findCompression();
     });
@@ -870,57 +762,8 @@ $(document).ready(function () {
         }
 
         //update bars
-        //updateBars();
-        cumValues = 0;
-        yOffset = 0;
-        data = [];
-
-        //---
-        var values = [{
-            cValue: Math.abs(xzero),
-            color: '#A0F'
-    }, {
-            cValue: Math.abs(xone),
-            color: '#FA0'
-    }, {
-            cValue: Math.abs(xtwo),
-            color: '#0AF'
-    }, {
-            cValue: Math.abs(xthree),
-            color: '#AF0'
-    }];
-
-        for (var i = 0; i < values.length; i++) {
-
-            var datum = {
-
-                value: yRange2(values[i].cValue),
-                colour: values[i].color,
-                y: 0,
-                x: yOffset
-
-            }
-            yOffset += (datum.value);
-            data.push(datum)
-        }
-
-        bars = canvas.selectAll('rect').data(data)
-
-        bars
-            .attr({
-                x: function (d) {
-                    return barMARGINS.left + d.x;
-                },
-                width: function (d) {
-                    return d.value;
-                }
-            })
-            .style({
-                fill: function (d) {
-                    return d.colour
-                }
-            })
-            .transition();
+       
+        updateBars(canvas);
 
 
         findCompression();
@@ -940,58 +783,8 @@ $(document).ready(function () {
         }
 
         //update bars
-        //updateBars();
-        cumValues = 0;
-        yOffset = 0;
-        data = [];
-
-        //---
-        var values = [{
-            cValue: Math.abs(xzero),
-            color: '#A0F'
-    }, {
-            cValue: Math.abs(xone),
-            color: '#FA0'
-    }, {
-            cValue: Math.abs(xtwo),
-            color: '#0AF'
-    }, {
-            cValue: Math.abs(xthree),
-            color: '#AF0'
-    }];
-
-        for (var i = 0; i < values.length; i++) {
-
-            var datum = {
-
-                value: yRange2(values[i].cValue),
-                colour: values[i].color,
-                y: 0,
-                x: yOffset
-
-            }
-            yOffset += (datum.value);
-            data.push(datum)
-        }
-
-        bars = canvas.selectAll('rect').data(data)
-
-        bars
-            .attr({
-                x: function (d) {
-                    return barMARGINS.left + d.x;
-                },
-                width: function (d) {
-                    return d.value;
-                }
-            })
-            .style({
-                fill: function (d) {
-                    return d.colour
-                }
-            })
-            .transition();
-
+        
+        updateBars(canvas);
 
         findCompression();
 
@@ -1010,56 +803,7 @@ $(document).ready(function () {
         }
 
         //update bars
-        //updateBars();
-        cumValues = 0;
-        yOffset = 0;
-        data = [];
-
-        //---
-        var values = [{
-            cValue: Math.abs(xzero),
-            color: '#A0F'
-    }, {
-            cValue: Math.abs(xone),
-            color: '#FA0'
-    }, {
-            cValue: Math.abs(xtwo),
-            color: '#0AF'
-    }, {
-            cValue: Math.abs(xthree),
-            color: '#AF0'
-    }];
-
-        for (var i = 0; i < values.length; i++) {
-
-            var datum = {
-
-                value: yRange2(values[i].cValue),
-                colour: values[i].color,
-                y: 0,
-                x: yOffset
-
-            }
-            yOffset += (datum.value);
-            data.push(datum)
-        }
-
-        bars = canvas.selectAll('rect').data(data)
-
-        bars
-            .attr({
-                x: function (d) {
-                    return barMARGINS.left + d.x;
-                },
-                width: function (d) {
-                    return d.value;
-                }
-            })
-            .style({
-                fill: function (d) {
-                    return d.colour
-                }
-            })
-            .transition();
+       
+        updateBars(canvas);
     });
 });
