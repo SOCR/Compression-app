@@ -227,6 +227,9 @@ function updateBars(canvas) {
         color: '#AF0'
     }];
 
+    //set scale
+    scaleBarGraph(values[0].cValue, values[1].cValue, values[2].cValue, values[3].cValue);
+
     for (var i = 0; i < values.length; i++) {
 
         var datum = {
@@ -444,8 +447,8 @@ $(document).ready(function () {
             redoLine();
 
             //update bars
-            
-        updateBars(canvas);
+
+            updateBars(canvas);
 
 
             findCompression();
@@ -548,7 +551,7 @@ $(document).ready(function () {
         .orient("bottom")
         .tickSubdivide(true);
 
-    canvas.append("svg:g")
+    barAxisGroup = canvas.append("svg:g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + (3 * MARGINS.bottom) + ")")
         .call(yAxis2);
@@ -584,6 +587,24 @@ $(document).ready(function () {
 
     findCompression();
 
+    //function to autoscale bar graph scale
+    function scaleBarGraph(value1, value2, value3, value4) {
+
+        var ValueSum = (value1 + value2 + value3 + value4)
+
+        //update axis
+        yRange2.domain([0, (ValueSum + (ValueSum / 10))])
+
+        console.log(value1 + "," + value2 + " " + value3 + " " + value4 + "   " + (value1 + value2 + value3 + value4));
+
+        barAxisGroup.transition().call(yAxis2);
+
+
+
+    }
+    window.scaleBarGraph = scaleBarGraph;
+
+    //function to zoom graph to fit whole curve
     function zoomOut() {
 
         //update axis
@@ -671,7 +692,7 @@ $(document).ready(function () {
         redoLine();
 
         //update bars
-        
+
         updateBars(canvas);
     });
     //updates when text boxes change
@@ -691,7 +712,7 @@ $(document).ready(function () {
 
         //update bars
         updateBars(canvas);
-       /* cumValues = 0;
+        /* cumValues = 0;
         yOffset = 0;
         data = [];
 
@@ -762,7 +783,7 @@ $(document).ready(function () {
         }
 
         //update bars
-       
+
         updateBars(canvas);
 
 
@@ -783,7 +804,7 @@ $(document).ready(function () {
         }
 
         //update bars
-        
+
         updateBars(canvas);
 
         findCompression();
@@ -803,7 +824,7 @@ $(document).ready(function () {
         }
 
         //update bars
-       
+
         updateBars(canvas);
     });
 });
