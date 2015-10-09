@@ -352,6 +352,16 @@ $(document).ready(function () {
     //define line points
     updateLineData();
 
+    var boxDrag = d3.behavior.drag()
+        .origin(function (d) {
+            return this;
+        })
+        .on("drag", drawBox);
+
+    //function for drawing box
+    function drawBox( /*d*/ ) {
+        console.log("asdf");
+    }
 
 
     //hides slider depending on option
@@ -364,7 +374,7 @@ $(document).ready(function () {
     }
 
     //graph objects for line graph are defined
-    vis = d3.select('#visual'),
+    vis = d3.select('#visual').call(boxDrag),
         WIDTH = 1000,
         HEIGHT = 500,
         MARGINS = {
@@ -435,6 +445,8 @@ $(document).ready(function () {
         })
         .on("drag", dragmove);
 
+
+    //function for dragging points
     function dragmove(d) {
 
         var useZoom = $('#zoom').is(":checked");
