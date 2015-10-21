@@ -352,18 +352,6 @@ $(document).ready(function () {
     //define line points
     updateLineData();
 
-    var boxDrag = d3.behavior.drag()
-        .origin(function (d) {
-            return this;
-        })
-        .on("drag", drawBox);
-
-    //function for drawing box
-    function drawBox( /*d*/ ) {
-        console.log("asdf");
-    }
-
-
     //hides slider depending on option
     if (graphType == 1) {
         document.getElementById("myText2").style.visibility = "hidden";
@@ -374,7 +362,7 @@ $(document).ready(function () {
     }
 
     //graph objects for line graph are defined
-    vis = d3.select('#visual').call(boxDrag),
+    vis = d3.select('#visual'),
         WIDTH = 1000,
         HEIGHT = 500,
         MARGINS = {
@@ -383,6 +371,9 @@ $(document).ready(function () {
             bottom: 20,
             left: 50
         }
+
+
+
     xRange = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(lineData, function (d) {
             return d.x;
         }), d3.max(lineData, function (d) {
@@ -443,27 +434,102 @@ $(document).ready(function () {
         .origin(function (d) {
             return d;
         })
+        .on("dragstart", dragstarter)
         .on("drag", dragmove);
 
 
+
+    var selectionBox, p;
+
+    function dragstarter(d) {
+        if (this.nodeName === "rectangle") {
+            console.log("rectangle start");
+        } else if (this.nodeName === "circle") {
+            console.log("point start");
+        } else {
+            // Extract the click location    
+            var point = d3.mouse(this);
+            console.log(d3.mouse(this));
+            p = {
+                x: point[0],
+                y: point[1]
+            };
+
+            //remove previous rectangles
+            vis.selectAll("rect").remove();
+
+
+            console.log("canv drag start " + p.x);
+            selectionBox = vis.append("rect")
+                .attr("x", p.x)
+                .attr("y", p.y)
+                .attr("width", 0)
+                .attr("height", 0)
+                .style("opacity", 0.5)
+                .style("fill", "#03B8FC")
+                .style("stroke", "#0074D3")
+                .call(drag);
+        }
+    }
+
     //function for dragging points
     function dragmove(d) {
+        /*if (this.nodeName === "rectangle") {
+            console.log("rectange drag");
 
-        var useZoom = $('#zoom').is(":checked");
-        console.log(useZoom);
-        if (useZoom == false) {
-            d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
+        } else*/
+        if (this.nodeName === "circle") {
 
-            //events to update line to fit dots
-            updateXs();
-            redoLine();
+            var useZoom = $('#zoom').is(":checked");
+            console.log("point drag");
+            if (useZoom == false) {
 
-            //update bars
+                //d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
 
-            updateBars(canvas);
+                d3.select(this)
+                    .attr("cx", d3.event.x)
+                    .attr("cy", d3.event.y);
+
+                //events to update line to fit dots
+                updateXs();
+                redoLine();
+
+                //update bars
+
+                updateBars(canvas);
 
 
-            findCompression();
+                findCompression();
+            }
+        } else {
+
+            console.log("canv drag");
+
+            //p.x/y represent initial point where drag started
+            //tempP represents current mouse point
+
+            var point = d3.mouse(this),
+                tempP = {
+                    x: point[0],
+                    y: point[1]
+                };
+
+            selectionBox.attr({
+                width: Math.abs(p.x - tempP.x),
+                height: Math.abs(p.y - tempP.y)
+            })
+
+            if (tempP.x - p.x < 0) {
+                selectionBox.attr({
+                    x: p.x + (tempP.x - p.x)
+                })
+            }
+
+            if (tempP.y - p.y < 0) {
+                selectionBox.attr({
+                    y: p.y + (tempP.y - p.y)
+                })
+            }
         }
     }
 
@@ -493,6 +559,8 @@ $(document).ready(function () {
             return "translate(" + p.x + "," + p.y + ")";
         })
         .call(drag);
+
+    vis.call(drag);
 
     //update textboxes to fit sliders SLIDER EQ
     getRange();
