@@ -432,7 +432,7 @@ $(document).ready(function () {
     //behavior for a dragged point
     var drag = d3.behavior.drag()
         .origin(function (d) {
-            return d;
+            return this;
         })
         .on("dragstart", dragstarter)
         .on("drag", dragmove);
@@ -442,14 +442,17 @@ $(document).ready(function () {
     var selectionBox, p;
 
     function dragstarter(d) {
+        console.log("start: " + this.nodeName);
         if (this.nodeName === "rectangle") {
             console.log("rectangle start");
         } else if (this.nodeName === "circle") {
+            d3.event.sourceEvent.stopPropagation();
+            console.log(d3.event.y);
             console.log("point start");
         } else {
             // Extract the click location    
             var point = d3.mouse(this);
-            console.log(d3.mouse(this));
+
             p = {
                 x: point[0],
                 y: point[1]
@@ -472,23 +475,27 @@ $(document).ready(function () {
         }
     }
 
+    function example(d) {}
+
     //function for dragging points
     function dragmove(d) {
-        /*if (this.nodeName === "rectangle") {
+
+        console.log("drag: " + this.nodeName);
+        if (this.nodeName === "rectangle") {
             console.log("rectange drag");
 
-        } else*/
+        } else
         if (this.nodeName === "circle") {
+
+            d3.event.sourceEvent.stopPropagation();
 
             var useZoom = $('#zoom').is(":checked");
             console.log("point drag");
             if (useZoom == false) {
 
-                //d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
 
-                d3.select(this)
-                    .attr("cx", d3.event.x)
-                    .attr("cy", d3.event.y);
+                console.log(d3.event.y);
+                d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
 
                 //events to update line to fit dots
                 updateXs();
@@ -502,8 +509,6 @@ $(document).ready(function () {
                 findCompression();
             }
         } else {
-
-            console.log("canv drag");
 
             //p.x/y represent initial point where drag started
             //tempP represents current mouse point
