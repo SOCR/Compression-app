@@ -433,6 +433,7 @@ $(document).ready(function () {
     var drag = d3.behavior.drag()
         .origin(function (d) {
             return this;
+            //return d3.select('g').node();
         })
         .on("dragstart", dragstarter)
         .on("drag", dragmove);
@@ -442,13 +443,22 @@ $(document).ready(function () {
     var selectionBox, p;
 
     function dragstarter(d) {
-        console.log("start: " + this.nodeName);
+        //d3.select('g').node()
+        //document.querySelector("#visual")
+
+        var point = d3.mouse(d3.select('g').node()),
+            tempP = {
+                x: point[0],
+                y: point[1]
+            };
+
+
+        //console.log("start: " + this.nodeName);
         if (this.nodeName === "rectangle") {
             console.log("rectangle start");
         } else if (this.nodeName === "circle") {
             d3.event.sourceEvent.stopPropagation();
-            console.log(d3.event.y);
-            console.log("point start");
+            //console.log("point start");
         } else {
             // Extract the click location    
             var point = d3.mouse(this);
@@ -462,7 +472,7 @@ $(document).ready(function () {
             vis.selectAll("rect").remove();
 
 
-            console.log("canv drag start " + p.x);
+            //console.log("canv drag start " + p.x);
             selectionBox = vis.append("rect")
                 .attr("x", p.x)
                 .attr("y", p.y)
@@ -475,49 +485,72 @@ $(document).ready(function () {
         }
     }
 
-    function example(d) {}
 
     //function for dragging points
     function dragmove(d) {
 
-        console.log("drag: " + this.nodeName);
+        var select = d3.selectAll("svg").filter(function (d, i) {
+            return i === 1;
+        });
+        var foo = select.node();
+
+        var barz = document.querySelector("#visual");
+
+        console.log(document.querySelector("#visual"));
+        console.log(d3.mouse(foo));
+
+        var point = d3.mouse(barz),
+            tempP = {
+                x: point[0],
+                y: point[1]
+            };
+
+        //console.log("drag: " + this.nodeName);
+        console.log("y=" + tempP.y);
+
         if (this.nodeName === "rectangle") {
-            console.log("rectange drag");
+            //console.log("rectange drag");
 
         } else
         if (this.nodeName === "circle") {
 
             d3.event.sourceEvent.stopPropagation();
+            //console.log("y2=" + tempP.y);
 
             var useZoom = $('#zoom').is(":checked");
-            console.log("point drag");
+            //console.log("point drag");
             if (useZoom == false) {
 
 
-                console.log(d3.event.y);
-                d3.select(this).attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
+                d3.select(this).attr("transform", "translate(" + (d.x = tempP.x) + "," + (d.y = tempP.y) + ")");
+
+                //console.log("y3=" + tempP.y);
 
                 //events to update line to fit dots
                 updateXs();
                 redoLine();
+                //console.log("y4=" + tempP.y);
 
                 //update bars
 
                 updateBars(canvas);
+                //console.log("y5=" + tempP.y);
 
 
                 findCompression();
+                //console.log("y6=" + tempP.y);
             }
         } else {
 
             //p.x/y represent initial point where drag started
             //tempP represents current mouse point
 
-            var point = d3.mouse(this),
+            /*var point = d3.mouse(this),
                 tempP = {
                     x: point[0],
                     y: point[1]
                 };
+                */
 
             selectionBox.attr({
                 width: Math.abs(p.x - tempP.x),
@@ -536,6 +569,7 @@ $(document).ready(function () {
                 })
             }
         }
+        //console.log("yfin=" + tempP.y);
     }
 
     circleAttrs = {
@@ -680,7 +714,7 @@ $(document).ready(function () {
         //update axis
         yRange2.domain([0, (ValueSum + (ValueSum / 10))])
 
-        console.log(value1 + "," + value2 + " " + value3 + " " + value4 + "   " + (value1 + value2 + value3 + value4));
+        //console.log(value1 + "," + value2 + " " + value3 + " " + value4 + "   " + (value1 + value2 + value3 + value4));
 
         barAxisGroup.transition().call(yAxis2);
 
