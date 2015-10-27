@@ -267,13 +267,20 @@ function updateBars(canvas) {
 function makeDots(xvalue, xvalue2, xvalue3) {
     nodes = [{
             x: xvalue,
-            y: getY(xvalue)
+            y: getY(xvalue),
+            initx: xvalue,
+            inity: getY(xvalue)
+
             }, {
             x: xvalue2,
-            y: getY(xvalue2)
+            y: getY(xvalue2),
+            initx: xvalue2,
+            inity: getY(xvalue2)
             }, {
             x: xvalue3,
-            y: getY(xvalue3)
+            y: getY(xvalue3),
+            initx: xvalue3,
+            inity: getY(xvalue3)
              }
                  ];
 
@@ -496,7 +503,6 @@ $(document).ready(function () {
 
         var barz = document.querySelector("#visual");
 
-        console.log(document.querySelector("#visual"));
         console.log(d3.mouse(foo));
 
         var point = d3.mouse(barz),
@@ -522,8 +528,14 @@ $(document).ready(function () {
             if (useZoom == false) {
 
 
-                d3.select(this).attr("transform", "translate(" + (d.x = tempP.x) + "," + (d.y = tempP.y) + ")");
-
+                d3.select(this).attr("transform", "translate(" + (d.x = tempP.x - xRange(d.initx)) + "," + (d.y = tempP.y - yRange(d.inity)) + ")");
+                console.log("point calc: " + tempP.x + " - " + d.initx + " = " + d.x);
+                /*
+                                d3.select(this).attr({
+                                    cx: tempP.x,
+                                    cy: tempP.y
+                                })
+                */
                 //console.log("y3=" + tempP.y);
 
                 //events to update line to fit dots
