@@ -268,19 +268,27 @@ function makeDots(xvalue, xvalue2, xvalue3) {
     nodes = [{
             x: xvalue,
             y: getY(xvalue),
+            //represents initial starting points in pixel coords
             initx: xvalue,
-            inity: getY(xvalue)
+            inity: getY(xvalue),
+            //represents distance from rectangle to circle in pan func
+            xDistance: -1,
+            yDistance: -1
 
             }, {
             x: xvalue2,
             y: getY(xvalue2),
             initx: xvalue2,
-            inity: getY(xvalue2)
+            inity: yRange(getY(xvalue2)),
+            xDistance: -1,
+            yDistance: -1
             }, {
             x: xvalue3,
             y: getY(xvalue3),
             initx: xvalue3,
-            inity: getY(xvalue3)
+            inity: getY(xvalue3),
+            xDistance: -1,
+            yDistance: -1
              }
                  ];
 
@@ -380,7 +388,6 @@ $(document).ready(function () {
         }
 
 
-
     xRange = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(lineData, function (d) {
             return d.x;
         }), d3.max(lineData, function (d) {
@@ -438,14 +445,35 @@ $(document).ready(function () {
 
     //behavior for a dragged point
     var drag = d3.behavior.drag()
+        /*.origin(function (d) {
+            var t = d3.select(this);
+            return {
+                x: t.attr("x"),
+                y: t.attr("y")
+            };
+        })*/
         .origin(function (d) {
-            return this;
-            //return d3.select('g').node();
+            var bbox = this.getBBox();
+            console.log(bbox.y);
+            return {
+                x: bbox.x,
+                y: bbox.y
+
+            };
         })
         .on("dragstart", dragstarter)
         .on("drag", dragmove);
 
+    //define zoom behavior
+    var zoom = d3.behavior.zoom().center([xRange(0), yRange(0)])
+        .on("zoom", draw);
 
+    vis.call(zoom)
+        .on("mousedown.zoom", null)
+        .on("touchstart.zoom", null)
+        .on("touchmove.zoom", null)
+        .on("touchend.zoom", null);;
+    zoom.y(yRange);
 
     var selectionBox, p;
 
@@ -459,21 +487,29 @@ $(document).ready(function () {
                 y: point[1]
             };
 
+        p = {
+            x: point[0],
+            y: point[1]
+        };
 
         //console.log("start: " + this.nodeName);
-        if (this.nodeName === "rectangle") {
-            console.log("rectangle start");
+        if (this.nodeName === "rect") {
+
+            d3.event.sourceEvent.stopPropagation();
+            //console.log("rectangle start");
+
+            d3.select(this).style({
+                opacity: 0.1
+            })
         } else if (this.nodeName === "circle") {
             d3.event.sourceEvent.stopPropagation();
             //console.log("point start");
         } else {
-            // Extract the click location    
+            // Extract the click location
+            console.log("canvas start");
             var point = d3.mouse(this);
 
-            p = {
-                x: point[0],
-                y: point[1]
-            };
+
 
             //remove previous rectangles
             vis.selectAll("rect").remove();
@@ -503,8 +539,6 @@ $(document).ready(function () {
 
         var barz = document.querySelector("#visual");
 
-        console.log(d3.mouse(foo));
-
         var point = d3.mouse(barz),
             tempP = {
                 x: point[0],
@@ -512,10 +546,33 @@ $(document).ready(function () {
             };
 
         //console.log("drag: " + this.nodeName);
-        console.log("y=" + tempP.y);
+        //console.log("y=" + tempP.y);
 
-        if (this.nodeName === "rectangle") {
-            //console.log("rectange drag");
+        if (this.nodeName === "rect") {
+            d3.event.sourceEvent.stopPropagation();
+
+
+            d3.select(this).style({
+                opacity: 0.05
+            })
+
+            //console.log("x " + selectionBox.x + " lx " + selectionBox.x + selectionBox.width);
+            var selectRect = d3.select(this);
+
+
+            var selected = vis.selectAll("circle").filter(function (d, i) {
+                    //returns circles within rectangle
+                    return ((xRange(d.x) > selectRect.attr("x") && xRange(d.x) < (+selectRect.attr("x") + +selectRect.attr("width"))) &&
+                        (yRange(d.y) > selectRect.attr("y") && yRange(d.y) < (+selectRect.attr("y") + +selectRect.attr("height")))
+                    )
+                }, this)
+                .attr("transform", "translate(" + (this.x = tempP.x) + "," + (this.y = tempP.y - (d3.select(this).attr("inity"))) + ")")
+                .style({
+                    opacity: 0.1
+
+                });
+
+            console.log(vis.selectAll("circle").x)
 
         } else
         if (this.nodeName === "circle") {
@@ -528,8 +585,8 @@ $(document).ready(function () {
             if (useZoom == false) {
 
 
-                d3.select(this).attr("transform", "translate(" + (d.x = tempP.x - xRange(d.initx)) + "," + (d.y = tempP.y - yRange(d.inity)) + ")");
-                console.log("point calc: " + tempP.x + " - " + d.initx + " = " + d.x);
+                d3.select(this).attr("transform", "translate(" + (d.x = tempP.x - xRange(d.initx)) + "," + (d.y = tempP.y) + ")");
+                //console.log("point calc: " + tempP.x + " - " + d.initx + " = " + d.x);
                 /*
                                 d3.select(this).attr({
                                     cx: tempP.x,
@@ -551,8 +608,15 @@ $(document).ready(function () {
 
                 findCompression();
                 //console.log("y6=" + tempP.y);
+
+                console.log("standard" + nodes[1].inity + " invyranged" + yRange.invert(nodes[1].inity));
+                console.log("tempP.y" + tempP.y + " d.inity" + d.inity);
+                console.log(nodes[1].y);
+
             }
         } else {
+
+            console.log("canv drag")
 
             //p.x/y represent initial point where drag started
             //tempP represents current mouse point
@@ -735,10 +799,39 @@ $(document).ready(function () {
     }
     window.scaleBarGraph = scaleBarGraph;
 
+    function draw() {
+        console.log("drawing");
+
+        vis.select("g.x.axis").call(xAxis);
+        vis.select("g.y.axis").call(yAxis);
+
+
+        var c = vis.selectAll("circle")
+
+        var movingCircleAttrs = {
+            cx: function (d) {
+                return xRange(d.x);
+            },
+            cy: function (d) {
+                console.log("y" + nodes[1].y + " range y" + yRange(nodes[1].y) + " invrange y" + yRange.invert(nodes[1].y));
+                return d.y;
+            }
+        };
+
+        c.attr(movingCircleAttrs)
+
+        console.log(nodes[1].y);
+
+        d3.select(".myLine")
+            .attr("d", lineFunc(lineData));
+    }
+
     //function to zoom graph to fit whole curve
     function zoomOut() {
 
+
         //update axis
+
         yRange.domain([d3.min(lineData, function (d) {
             return d.y - 10;
         }), d3.max(lineData, function (d) {
