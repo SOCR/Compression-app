@@ -152,6 +152,22 @@ function redoXs() {
     //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
     xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
 
+
+    /*
+        var mathDiv = document.getElementById('math');
+        var displayDiv = document.getElementById('demo');
+
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, "math"]);
+        MathJax.Hub.Queue(function () {
+            var math = MathJax.Hub.getAllJax("MathDiv")[0];
+
+            MathJax.Hub.Queue(["Text", math, "$y = \\color{#A0F}{" + roundNum(xzero, 1) + displayNum(xone, "#FA0") + "x}" + displayNum(xtwo, "#0AF") + "x^2" + displayNum(xthree, "#AF0") + "x^3$"]);
+            MathJax.Hub.Queue(function () {
+                displayDiv.innerHTML = mathDiv.innerHTML;
+            });
+
+        });*/
+
     //output equation
     document.getElementById("demo").innerHTML = "$y = \\color{#A0F}{" + roundNum(xzero, 1) + displayNum(xone, "#FA0") + "x}" + displayNum(xtwo, "#0AF") + "x^2" + displayNum(xthree, "#AF0") + "x^3$";
     MathJax.Callback.Queue(["Typeset", MathJax.Hub, "demo"]);
@@ -279,7 +295,7 @@ function makeDots(xvalue, xvalue2, xvalue3) {
             x: xvalue2,
             y: getY(xvalue2),
             initx: xvalue2,
-            inity: yRange(getY(xvalue2)),
+            inity: getY(xvalue2),
             xDistance: -1,
             yDistance: -1
             }, {
@@ -468,11 +484,12 @@ $(document).ready(function () {
     var zoom = d3.behavior.zoom().center([xRange(0), yRange(0)])
         .on("zoom", draw);
 
-    vis.call(zoom)
+    /*vis.call(zoom)
         .on("mousedown.zoom", null)
         .on("touchstart.zoom", null)
         .on("touchmove.zoom", null)
         .on("touchend.zoom", null);;
+    */
     zoom.y(yRange);
 
     var selectionBox, p;
@@ -524,7 +541,7 @@ $(document).ready(function () {
                 .style("opacity", 0.5)
                 .style("fill", "#03B8FC")
                 .style("stroke", "#0074D3")
-                .call(drag);
+                //.call(drag);
         }
     }
 
@@ -585,7 +602,7 @@ $(document).ready(function () {
             if (useZoom == false) {
 
 
-                d3.select(this).attr("transform", "translate(" + (d.x = tempP.x - xRange(d.initx)) + "," + (d.y = tempP.y) + ")");
+                d3.select(this).attr("transform", "translate(" + (d.x = tempP.x - xRange(d.initx)) + "," + (d.y = tempP.y - yRange(d.inity)) + ")");
                 //console.log("point calc: " + tempP.x + " - " + d.initx + " = " + d.x);
                 /*
                                 d3.select(this).attr({
@@ -675,7 +692,7 @@ $(document).ready(function () {
         })
         .call(drag);
 
-    vis.call(drag);
+    //vis.call(drag);
 
     //update textboxes to fit sliders SLIDER EQ
     getRange();
@@ -818,7 +835,7 @@ $(document).ready(function () {
             }
         };
 
-        c.attr(movingCircleAttrs)
+        c.attr(circleAttrs)
 
         console.log(nodes[1].y);
 
