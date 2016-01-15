@@ -6,8 +6,8 @@ var xthree;
 var xtwo;
 var xone;
 var xzero;
-var firstx = -1;
-var firsty = -4;
+var firstx = 0.001;
+var firsty = 10;
 var secondx = 2;
 var secondy = 4;
 var thirdx = 4;
@@ -33,7 +33,6 @@ var useZoom = $('#zoom').is(":checked");
 //updates coefficients
 function updateXs() {
 
-
     var pixelx1 = xRange(originx1) + nodes[0].x;
     var pixely1 = yRange(originy1) + nodes[0].y;
     var pixelx2 = xRange(originx2) + nodes[1].x;
@@ -48,6 +47,7 @@ function updateXs() {
     secondy = yRange.invert(pixely2);
     thirdx = xRange.invert(pixelx3);
     thirdy = yRange.invert(pixely3);
+
 
 
     redoXs();
@@ -123,7 +123,7 @@ function getRange() {
 }
 
 function redoXs() {
-    //always a dynamic variable HERE LAYS A SLIDER EQ
+    //always a dynamic variable 
     getRange();
     xzero = (slider) * (rangeStandard / 50) - (rangeStandard);
 
@@ -152,7 +152,7 @@ function redoXs() {
     //xtwo = (Math.pow(secondx, 3) * (xone * varP + varQ * xzero - varQ * firsty) + secondy - xone * secondx - xzero) / (Math.pow(secondx, 2) - varN * Math.pow(secondx, 3));
     xthree = varM - varN * xtwo - varP * xone - varQ * xzero;
 
-
+    console.log("secondx: " + secondx);
     /*
         var mathDiv = document.getElementById('math');
         var displayDiv = document.getElementById('demo');
@@ -282,29 +282,31 @@ function updateBars(canvas) {
 //makes dots for static points
 function makeDots(xvalue, xvalue2, xvalue3) {
     nodes = [{
-            x: xvalue,
-            y: getY(xvalue),
+            x: xRange(xvalue),
+            y: yRange(getY(xvalue)),
             //represents initial starting points in pixel coords
             initx: xvalue,
             inity: getY(xvalue),
             //represents distance from rectangle to circle in pan func
             xDistance: -1,
-            yDistance: -1
-
+            yDistance: -1,
+            usePixels: 0
             }, {
-            x: xvalue2,
-            y: getY(xvalue2),
+            x: xRange(xvalue2),
+            y: yRange(getY(xvalue2)),
             initx: xvalue2,
             inity: getY(xvalue2),
             xDistance: -1,
-            yDistance: -1
+            yDistance: -1,
+            usePixels: 0
             }, {
-            x: xvalue3,
-            y: getY(xvalue3),
+            x: xRange(xvalue3),
+            y: yRange(getY(xvalue3)),
             initx: xvalue3,
             inity: getY(xvalue3),
             xDistance: -1,
-            yDistance: -1
+            yDistance: -1,
+            usePixels: 0
              }
                  ];
 
@@ -479,7 +481,7 @@ $(document).ready(function () {
         })
         .on("dragstart", dragstarter)
         .on("drag", dragmove);
-
+    //dragend second
     //define zoom behavior
     var zoom = d3.behavior.zoom().center([xRange(0), yRange(0)])
         .on("zoom", draw);
@@ -549,10 +551,10 @@ $(document).ready(function () {
     //function for dragging points
     function dragmove(d) {
 
-        var select = d3.selectAll("svg").filter(function (d, i) {
-            return i === 1;
-        });
-        var foo = select.node();
+        /* var select = d3.selectAll("svg").filter(function (d, i) {
+             return i === 1;
+         });
+         var foo = select.node();*/
 
         var barz = document.querySelector("#visual");
 
@@ -583,7 +585,7 @@ $(document).ready(function () {
                         (yRange(d.y) > selectRect.attr("y") && yRange(d.y) < (+selectRect.attr("y") + +selectRect.attr("height")))
                     )
                 }, this)
-                .attr("transform", "translate(" + (this.x = tempP.x) + "," + (this.y = tempP.y - (d3.select(this).attr("inity"))) + ")")
+                .attr("transform", "translate(" + (this.x = tempP.x - (d3.select(this).attr("initx"))) + "," + (this.y = tempP.y - (d3.select(this).attr("inity"))) + ")")
                 .style({
                     opacity: 0.1
 
@@ -602,7 +604,19 @@ $(document).ready(function () {
             if (useZoom == false) {
 
 
-                d3.select(this).attr("transform", "translate(" + (d.x = tempP.x - xRange(d.initx)) + "," + (d.y = tempP.y - yRange(d.inity)) + ")");
+                d.usePixels = 1;
+                if (d.usePixels == 2) {
+                    d3.select(this).attr("cx", d.x = xRange(0)).attr("cy", d.y = yRange(0));
+                } else {
+                    d3.select(this).attr("cx", d.x = tempP.x).attr("cy", d.y = tempP.y);
+                }
+                console.log(nodes[1].y);
+                console.log(yRange(d.inity));
+
+
+                //d3.select(this).attr("transform", "translate(" + (d.x = tempP.x - xRange(d.initx)) + "," + (d.y = tempP.y - yRange(d.inity)) + ")");
+                //console.log("new x is: " + d.x);
+                //console.log("tempx " + tempP.x);
                 //console.log("point calc: " + tempP.x + " - " + d.initx + " = " + d.x);
                 /*
                                 d3.select(this).attr({
@@ -626,9 +640,6 @@ $(document).ready(function () {
                 findCompression();
                 //console.log("y6=" + tempP.y);
 
-                console.log("standard" + nodes[1].inity + " invyranged" + yRange.invert(nodes[1].inity));
-                console.log("tempP.y" + tempP.y + " d.inity" + d.inity);
-                console.log(nodes[1].y);
 
             }
         } else {
@@ -667,10 +678,10 @@ $(document).ready(function () {
 
     circleAttrs = {
         cx: function (d) {
-            return xRange(d.x);
+            return d.x;
         },
         cy: function (d) {
-            return yRange(d.y);
+            return d.y;
         }
     };
 
@@ -680,10 +691,10 @@ $(document).ready(function () {
         .enter().append("circle")
         .attr("class", "nodes")
         .attr("cx", function (d) {
-            return xRange(d.x);
+            return d.x;
         })
         .attr("cy", function (d) {
-            return yRange(d.y);
+            return d.y;
         })
         .attr("r", "7px")
         .attr("fill", "black")
@@ -865,12 +876,20 @@ $(document).ready(function () {
 
 
 
-        var c = vis.selectAll("circle")
 
+        console.log(nodes[1].usePixels)
+        if (nodes[1].usePixels == 1) {
+            nodes[1].y = 0;
+            nodes[1].x = 0;
+
+            console.log(nodes[1].x);
+            nodes[1].usePixels = 0;
+        }
+
+        var c = vis.selectAll("circle")
         c.transition()
             .attr(circleAttrs)
 
-        console.log(firstx);
 
     }
 
@@ -890,6 +909,7 @@ $(document).ready(function () {
             .attr("d", lineFunc(lineData));
 
         var c = vis.selectAll("circle")
+
 
         c.transition()
             .attr(circleAttrs)
