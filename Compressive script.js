@@ -201,10 +201,10 @@ function setSlider() {
 function updateLineData() {
     //resets and fills points
     lineData = [];
-    for (i = (originx1 - 1); i < (originx3 + 2); i = i + .1) {
+    for (i = (firstx - 1); i < (thirdx + 2); i = i + .1) {
         lineData.push({
-            x: i,
-            y: getY(i)
+            x: xRange(i),
+            y: yRange(getY(i))
         });
 
     }
@@ -279,34 +279,37 @@ function updateBars(canvas) {
         .transition();
 }
 
-//makes dots for static points
+//makes dots for static points from user coordinates
 function makeDots(xvalue, xvalue2, xvalue3) {
     nodes = [{
-            x: xvalue,
-            y: getY(xvalue),
+            x: xRange(xvalue),
+            y: yRange(getY(xvalue)),
             //represents initial starting points in pixel coords
             initx: xvalue,
             inity: getY(xvalue),
             //represents distance from rectangle to circle in pan func
             xDistance: -1,
-            yDistance: -1
-
+            yDistance: -1,
+            usePixels: 0
             }, {
-            x: xvalue2,
-            y: getY(xvalue2),
+            x: xRange(xvalue2),
+            y: yRange(getY(xvalue2)),
             initx: xvalue2,
             inity: getY(xvalue2),
             xDistance: -1,
-            yDistance: -1
+            yDistance: -1,
+            usePixels: 0
             }, {
-            x: xvalue3,
-            y: getY(xvalue3),
+            x: xRange(xvalue3),
+            y: yRange(getY(xvalue3)),
             initx: xvalue3,
             inity: getY(xvalue3),
             xDistance: -1,
-            yDistance: -1
+            yDistance: -1,
+            usePixels: 0
              }
                  ];
+
 
 }
 
@@ -377,6 +380,21 @@ function findCompression() {
 
 
 $(document).ready(function () {
+
+    //graph objects for line graph are defined
+    vis = d3.select('#visual'),
+        WIDTH = 1000,
+        HEIGHT = 500,
+        MARGINS = {
+            top: 20,
+            right: 20,
+            bottom: 20,
+            left: 50
+        }
+
+    xRange = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([(firstx - 1), (thirdx + 2)])
+    yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([-10, 10])
+
     //redefine coefficient variables
     redoXs();
 
@@ -392,29 +410,7 @@ $(document).ready(function () {
         $("#myRange2").show();
     }
 
-    //graph objects for line graph are defined
-    vis = d3.select('#visual'),
-        WIDTH = 1000,
-        HEIGHT = 500,
-        MARGINS = {
-            top: 20,
-            right: 20,
-            bottom: 20,
-            left: 50
-        }
 
-
-    xRange = d3.scale.linear().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min(lineData, function (d) {
-            return d.x;
-        }), d3.max(lineData, function (d) {
-            return d.x;
-        })])
-        /*yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min(lineData, function (d) {
-            return d.y - 1;
-        }), d3.max(lineData, function (d) {
-            return d.y + 2;
-        })])*/
-    yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([-10, 10])
 
     //setup x
     xAxis = d3.svg.axis()
@@ -442,10 +438,10 @@ $(document).ready(function () {
 
     lineFunc = d3.svg.line()
         .x(function (d) {
-            return xRange(d.x);
+            return d.x;
         })
         .y(function (d) {
-            return yRange(d.y);
+            return d.y;
         });
 
     //define line
@@ -458,7 +454,6 @@ $(document).ready(function () {
 
     //define 3 "static" points
     makeDots(firstx, secondx, thirdx);
-
     //behavior for a dragged point
     var drag = d3.behavior.drag()
         /*.origin(function (d) {
@@ -680,10 +675,15 @@ $(document).ready(function () {
         .enter().append("circle")
         .attr("class", "nodes")
         .attr("cx", function (d) {
-            return xRange(d.x);
+
+            document.getElementById("number").innerHTML = nodes[1].x
+
+            console.log(nodes[1].x)
+
+            return d.x;
         })
         .attr("cy", function (d) {
-            return yRange(d.y);
+            return d.y;
         })
         .attr("r", "7px")
         .attr("fill", "black")
@@ -691,6 +691,7 @@ $(document).ready(function () {
             return "translate(" + p.x + "," + p.y + ")";
         })
         .call(drag);
+
 
     //vis.call(drag);
 
