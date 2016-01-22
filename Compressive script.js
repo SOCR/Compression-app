@@ -676,10 +676,6 @@ $(document).ready(function () {
         .attr("class", "nodes")
         .attr("cx", function (d) {
 
-            document.getElementById("number").innerHTML = nodes[1].x
-
-            console.log(nodes[1].x)
-
             return d.x;
         })
         .attr("cy", function (d) {
@@ -688,7 +684,7 @@ $(document).ready(function () {
         .attr("r", "7px")
         .attr("fill", "black")
         .attr("transform", function (p) {
-            return "translate(" + p.x + "," + p.y + ")";
+            return "translate(" + xRange.invert(p.x) + "," + yRange.invert(p.y) + ")";
         })
         .call(drag);
 
